@@ -1,5 +1,5 @@
 {
-  "name": "b53-tmp",
+  "name": "b53-site",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -11,13 +11,18 @@
   "dependencies": {
     "react": "^18",
     "react-dom": "^18",
-    "next": "14.2.35"
+    "next": "14.2.35",
+    "framer-motion": "^11",
+    "@react-three/fiber": "^8",
+    "@react-three/drei": "^9",
+    "three": "^0.169.0"
   },
   "devDependencies": {
     "typescript": "^5",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/three": "^0.169.0",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "eslint": "^8",
