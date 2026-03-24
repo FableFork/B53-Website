@@ -11,7 +11,7 @@ export default function Nav() {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/15 backdrop-blur-md bg-[#0a0a0a]/70">
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 backdrop-blur-lg bg-[#0a0a0a]/25">
         <div className="flex items-center justify-between px-6 md:px-10 h-16">
           {/* Logo */}
           <Link href="/" onClick={() => setMenuOpen(false)}>
