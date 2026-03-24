@@ -211,7 +211,7 @@ export default function Hero() {
   return (
     <section className="relative w-screen h-screen overflow-hidden bg-[#0a0a0a]">
       <Canvas camera={{ position: [0, 0, 1] }} style={{ width: "100%", height: "100%" }}
-        gl={{ antialias: false }} dpr={1}>
+        gl={{ antialias: false }} dpr={1} frameloop="always">
         <NoisePlane />
         {logoTex && <LogoPlane texture={logoTex} mouseRef={mouseRef} velocityRef={velocityRef} />}
       </Canvas>

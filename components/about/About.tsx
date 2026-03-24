@@ -35,22 +35,21 @@ export default function About() {
   }, []);
 
   return (
-    <section className="w-full bg-[#0a0a0a] px-10 md:px-20 py-32">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center max-w-7xl mx-auto">
+    <section className="w-full min-h-screen bg-[#0a0a0a] px-10 md:px-20 flex items-center">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center w-full max-w-7xl mx-auto py-24">
 
         {/* Left — text */}
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-10">
 
           {/* Display heading */}
           <div ref={containerRef} className="leading-none uppercase text-[#f0f0f0] font-niagara w-full overflow-hidden">
             <div ref={line1Ref} className="whitespace-nowrap">Creative Technologist</div>
-            <div className="whitespace-nowrap"><span className="mr-2">×</span>Motion Designer</div>
+            <div className="whitespace-nowrap"><span className="mr-2" style={{ WebkitTextStroke: "2px #f0f0f0" }}>×</span>Motion Designer</div>
           </div>
 
           {/* Body */}
           <p
-            className="text-lg text-[#f0f0f0] leading-relaxed font-geist"
-            style={{ textAlign: "justify" }}
+            className="text-xl text-[#f0f0f0] leading-relaxed font-geist text-left"
           >
             At the intersection of technology and direction. Crafting real-time
             3D experiences, interactive visualizations, and motion work that
@@ -63,7 +62,7 @@ export default function About() {
 
         {/* Right — image */}
         <div className="flex justify-center md:justify-end">
-          <div className="relative w-full max-w-sm overflow-hidden rounded-2xl">
+          <div className="relative w-full max-w-lg overflow-hidden rounded-2xl">
             <Image
               src="/Assets/misc/ShivaTunoly_shoot.png"
               alt="B53"
