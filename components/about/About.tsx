@@ -64,7 +64,7 @@ export default function About() {
         <div className="flex justify-center md:justify-end">
           <div className="relative w-full max-w-lg overflow-hidden rounded-2xl">
             <Image
-              src="/Assets/misc/ShivaTunoly_shoot.png"
+              src="/Assets/Misc/ShivaTunoly_shoot.png"
               alt="B53"
               width={600}
               height={800}
