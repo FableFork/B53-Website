@@ -98,6 +98,9 @@ export const projects: Project[] = [
     ],
     styleframeLayout: "grid",
     styleframes: [
+      { src: "/Projects/dubai-ai-festival/05587f233410695.68af069b96d03.png",     width: 3201, height: 789 },
+      { src: "/Projects/dubai-ai-festival/9a6d5b233410695.68af069b998da.png",     width: 3201, height: 806 },
+      { src: "/Projects/dubai-ai-festival/37009f233410695.68af069b97767.png",     width: 3201, height: 800 },
       { src: "/Projects/dubai-ai-festival/20441c233410695.68af069b9fd76.png",     width: 3201, height: 786 },
       { src: "/Projects/dubai-ai-festival/21318c233410695.68af069b9cd7c.png",     width: 3201, height: 771 },
       { src: "/Projects/dubai-ai-festival/32273a233410695.68af069b98e51.png",     width: 3201, height: 786 },
