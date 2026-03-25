@@ -36,14 +36,6 @@ const TESTIMONIALS = [
       "Shiva is a brilliant 3D Artist and Motion Designer with a natural gift for visual storytelling. Having mentored him early on, I was consistently impressed by his ability to find creative solutions using tools like Unreal Engine and Blender. His technical execution, especially with complex nodal workflows, is outstanding. While he is naturally reserved, he is a 'rare find' whose dedication and skill set bring immense value to any creative project. He has a very bright future ahead of him.",
   },
   {
-    id: "t3",
-    name: "Daniel Osei",
-    position: "Founder, Construct Labs",
-    preview: null as string | null,
-    review:
-      "We hired B53 to visualise an architectural concept that only existed on paper. What came back was a fully realised world — the client signed off on the spot. Can't recommend highly enough.",
-  },
-  {
     id: "t4",
     name: "Noorin Tiatt",
     position: "Production Coordinator, Sentient by Elysian",
@@ -171,6 +163,7 @@ function TestimonialCard({
       initial={{ opacity: 0, y: 32 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.6, delay: index * 0.1, ease: [0.4, 0, 0.2, 1] }}
+      className="md:shrink-0 md:w-[420px]"
     >
       <div
         ref={wrapperRef}
@@ -246,17 +239,20 @@ export default function Testimonials() {
           Testimonials
         </motion.h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-6xl mx-auto">
-          {TESTIMONIALS.map((t, i) => (
-            <TestimonialCard
-              key={t.id}
-              testimonial={t}
-              index={i}
-              globalMouse={globalMouse}
-              isMobile={isMobile}
-              onExpand={() => setExpandedId(t.id)}
-            />
-          ))}
+        {/* Mobile: single column grid | Desktop: centered horizontal scroll */}
+        <div className="grid grid-cols-1 gap-5 md:block md:overflow-x-auto md:pb-4 hide-scrollbar">
+          <div className="md:flex md:flex-row md:gap-5 md:w-max md:min-w-full md:justify-center">
+            {TESTIMONIALS.map((t, i) => (
+              <TestimonialCard
+                key={t.id}
+                testimonial={t}
+                index={i}
+                globalMouse={globalMouse}
+                isMobile={isMobile}
+                onExpand={() => setExpandedId(t.id)}
+              />
+            ))}
+          </div>
         </div>
       </section>
 
