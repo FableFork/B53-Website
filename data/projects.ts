@@ -184,7 +184,7 @@ export const projects: Project[] = [
     roles:               ["Personal"],
     synopsis:            "To create a filmic and cinematic series of images under the theme 'URBAN'.",
     synopsisCentered:    true,
-    cover:               "/Projects/urban/b20769128371097.6154b005ccf0f.jpg",
+    cover:               "/ProjectThumbnails/urban1.png",
     tab:                 "motion",
     hideStyleframeLabel: true,
     styleframes: [
