@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { motion } from "framer-motion";
-import Link from "next/link";
+import TransitionLink from "@/components/TransitionLink";
 import { usePathname } from "next/navigation";
 import * as THREE from "three";
 
@@ -78,7 +78,7 @@ function MenuItem({ href, label, onClose, isActive }: { href: string; label: str
         animate={{ opacity: hovered ? 1 : 0 }}
         transition={{ duration: 0.25, ease: "easeInOut" }}
       />
-      <Link href={href} onClick={onClose}>
+      <TransitionLink href={href} onClick={onClose}>
         <span
           className="block font-niagara uppercase leading-none py-1 select-none"
           style={{
@@ -90,7 +90,7 @@ function MenuItem({ href, label, onClose, isActive }: { href: string; label: str
         >
           {label}
         </span>
-      </Link>
+      </TransitionLink>
     </div>
   );
 }
@@ -129,10 +129,17 @@ export default function MenuOverlay({ onClose }: { onClose: () => void }) {
         exit={{ opacity: 0 }}
         transition={{ duration: 0.25 }}
       >
-        {/* Close button */}
+        {/* Links */}
+        <div className="absolute inset-0 flex flex-col justify-center px-10 md:px-20">
+          {LINKS.map(l => (
+            <MenuItem key={l.href} {...l} onClose={onClose} isActive={pathname === l.href} />
+          ))}
+        </div>
+
+        {/* Close button — rendered after links so it sits on top */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-6 md:right-10 font-niagara leading-none select-none"
+          className="absolute top-4 right-6 md:right-10 font-niagara leading-none select-none z-10"
           style={{
             fontSize: "clamp(3rem, 7vw, 6rem)",
             color: "#fa3d00",
@@ -142,13 +149,6 @@ export default function MenuOverlay({ onClose }: { onClose: () => void }) {
         >
           ×
         </button>
-
-        {/* Links */}
-        <div className="absolute inset-0 flex flex-col justify-center px-10 md:px-20">
-          {LINKS.map(l => (
-            <MenuItem key={l.href} {...l} onClose={onClose} isActive={pathname === l.href} />
-          ))}
-        </div>
       </motion.div>
     </>
   );

@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState, useMemo } from "react";
 import { useScroll, AnimatePresence, motion } from "framer-motion";
 import { Canvas, useFrame } from "@react-three/fiber";
-import Link from "next/link";
+import TransitionLink from "@/components/TransitionLink";
 import * as THREE from "three";
 import type { MutableRefObject } from "react";
 import type { MotionValue } from "framer-motion";
@@ -329,7 +329,7 @@ function SeeTheWorkButton() {
   const [clicked, setClicked] = useState(false);
 
   return (
-    <Link href="/work" className="mt-4 block" onClick={() => setClicked(true)}>
+    <TransitionLink href="/work" className="mt-4 block" onClick={() => setClicked(true)}>
       <motion.div
         className="relative overflow-hidden rounded-full border border-white/30 flex items-center justify-center cursor-pointer"
         onHoverStart={() => setHovered(true)}
@@ -358,7 +358,7 @@ function SeeTheWorkButton() {
           SEE THE WORK
         </span>
       </motion.div>
-    </Link>
+    </TransitionLink>
   );
 }
 

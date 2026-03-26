@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import Link from "next/link";
-import Nav from "@/components/nav/Nav";
+import TransitionLink from "@/components/TransitionLink";
 import { projects } from "@/data/projects";
 
 // ─── Project Card ─────────────────────────────────────────────────────────────
@@ -18,7 +17,7 @@ function ProjectCard({ project, index }: { project: (typeof projects)[number]; i
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: index * 0.07, ease: [0.4, 0, 0.2, 1] }}
     >
-      <Link href={`/work/${project.slug}`}>
+      <TransitionLink href={`/work/${project.slug}`}>
         <div
           className="group relative w-full overflow-hidden rounded-2xl bg-[#111111] border border-white/8 flex items-end px-8 md:px-12 pb-6"
           style={{ aspectRatio: "16 / 4.2" }}
@@ -62,7 +61,7 @@ function ProjectCard({ project, index }: { project: (typeof projects)[number]; i
             {project.title}
           </h2>
         </div>
-      </Link>
+      </TransitionLink>
     </motion.div>
   );
 }
@@ -70,8 +69,8 @@ function ProjectCard({ project, index }: { project: (typeof projects)[number]; i
 // ─── Tabs ─────────────────────────────────────────────────────────────────────
 
 const TABS = [
-  { id: "motion",      label: "Motion Design" },
-  { id: "interactive", label: "Interactive Demos" },
+  { id: "motion", label: "Motion Design" },
+  // { id: "interactive", label: "Interactive Demos" }, // temporarily hidden
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
@@ -108,8 +107,6 @@ export default function Work() {
 
   return (
     <main className="min-h-screen bg-[#0a0a0a]">
-      <Nav />
-
       {/* Hero banner */}
       <div className="relative w-full overflow-hidden" style={{ height: "clamp(14rem, 28vw, 22rem)" }}>
         <Image

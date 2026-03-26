@@ -1,7 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { useRef, useEffect } from "react";
 import * as THREE from "three";
 
 // ─── Shared noise functions ───────────────────────────────────────────────────
@@ -33,8 +32,6 @@ const vert = /* glsl */ `
   void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }
 `;
 
-// ─── Background — pure animated noise, no mouse interaction ─────────────────
-
 const bgFrag = /* glsl */ `
   uniform float uTime;
   varying vec2  vUv;
@@ -54,39 +51,28 @@ const bgFrag = /* glsl */ `
   }
 `;
 
-// ─── Logo — same FBM distorts surface, localised to mouse position ───────────
-
 const logoFrag = /* glsl */ `
   uniform sampler2D uLogo;
   uniform float     uTime;
-  uniform vec2      uMouse;      // screen UV 0-1
-  uniform float     uVelocity;   // smoothed 0-1
-  uniform vec2      uLogoOffset; // logo rect bottom-left in screen UV
-  uniform vec2      uLogoSize;   // logo rect size in screen UV
+  uniform vec2      uMouse;
+  uniform float     uVelocity;
+  uniform vec2      uLogoOffset;
+  uniform vec2      uLogoSize;
   varying vec2      vUv;
   ${NOISE_FNS}
   void main() {
-    // Map fragment to screen UV so noise matches background scale
     vec2 screenUv = uLogoOffset + vUv * uLogoSize;
-
-    // Distance from mouse → local distortion brush
     float d         = length(screenUv - uMouse);
     float proximity = exp(-d * 6.0);
     float strength  = proximity * uVelocity * 0.28 + 0.008;
-
-    // Domain-warped FBM — same computation as background
     vec2 q = vec2(fbm(screenUv * 1.2 + uTime * 0.025),
                   fbm(screenUv * 1.2 + vec2(5.2,1.3) + uTime * 0.025));
     vec2 r = vec2(fbm(screenUv * 1.2 + 2.8*q + vec2(1.7,9.2) + uTime * 0.02),
                   fbm(screenUv * 1.2 + 2.8*q + vec2(8.3,2.8) + uTime * 0.02));
     vec2 warp = vec2(fbm(screenUv * 1.2 + 2.8*r),
                      fbm(screenUv * 1.2 + 2.8*r + vec2(3.1, 7.4))) - 0.5;
-
-    // Sample logo texture with warp
     vec2 logoUv    = clamp(vUv + warp * strength, 0.0, 1.0);
     vec3 logoColor = texture2D(uLogo, logoUv).rgb;
-
-    // Reconstruct background color at this screen position (mirrors bgFrag exactly)
     float n     = fbm(screenUv * 1.2 + 2.8 * r);
     float c     = pow(smoothstep(0.40, 0.62, n), 0.85);
     float frame = floor(uTime * 24.0);
@@ -94,110 +80,132 @@ const logoFrag = /* glsl */ `
     float g2    = hash(screenUv * 240.0 + frame * 0.3141 + 7.3);
     c = clamp(c + (g1 * 0.65 + g2 * 0.35 - 0.5) * 0.38, 0.0, 1.0);
     vec3 bgColor = vec3(c);
-
-    // Difference blend
     gl_FragColor = vec4(abs(logoColor - bgColor), 1.0);
   }
 `;
 
-// ─── Background plane ────────────────────────────────────────────────────────
+// ─── Constants ────────────────────────────────────────────────────────────────
 
-function NoisePlane() {
-  const matRef = useRef<THREE.ShaderMaterial>(null);
-  const { viewport } = useThree();
-  useFrame(({ clock }) => {
-    if (matRef.current) matRef.current.uniforms.uTime.value = clock.getElapsedTime();
-  });
-  return (
-    <mesh scale={[viewport.width, viewport.height, 1]}>
-      <planeGeometry args={[1, 1]} />
-      <shaderMaterial ref={matRef} vertexShader={vert} fragmentShader={bgFrag}
-        uniforms={{ uTime: { value: 0 } }} />
-    </mesh>
-  );
-}
+const LOGO_CSS_W = 428;
+const LOGO_CSS_H = 198;
 
-// ─── Logo plane ──────────────────────────────────────────────────────────────
-
-const LOGO_CSS_W = 428; // 340 + 44*2
-const LOGO_CSS_H = 198; // 142 + 28*2
-
-function LogoPlane({
-  texture, mouseRef, velocityRef,
-}: {
-  texture:     THREE.CanvasTexture;
-  mouseRef:    React.MutableRefObject<{ x: number; y: number }>;
-  velocityRef: React.MutableRefObject<number>;
-}) {
-  const matRef = useRef<THREE.ShaderMaterial>(null);
-  const { viewport, size } = useThree();
-
-  useFrame(({ clock }) => {
-    if (!matRef.current) return;
-    const u  = matRef.current.uniforms;
-    const sw = LOGO_CSS_W / size.width;
-    const sh = LOGO_CSS_H / size.height;
-    u.uTime.value = clock.getElapsedTime();
-    u.uMouse.value.set(mouseRef.current.x, mouseRef.current.y);
-    u.uVelocity.value = velocityRef.current;
-    u.uLogoOffset.value.set(0.5 - sw * 0.5, 0.5 - sh * 0.5);
-    u.uLogoSize.value.set(sw, sh);
-  });
-
-  const sw = LOGO_CSS_W / (size.width  || 1920);
-  const sh = LOGO_CSS_H / (size.height || 1080);
-
-  return (
-    <mesh position={[0, 0, 0.01]} scale={[sw * viewport.width, sh * viewport.height, 1]} renderOrder={1}>
-      <planeGeometry args={[1, 1]} />
-      <shaderMaterial ref={matRef} vertexShader={vert} fragmentShader={logoFrag}
-        uniforms={{
-          uLogo:       { value: texture },
-          uTime:       { value: 0 },
-          uMouse:      { value: new THREE.Vector2(0.5, 0.5) },
-          uVelocity:   { value: 0 },
-          uLogoOffset: { value: new THREE.Vector2(0.5 - sw*0.5, 0.5 - sh*0.5) },
-          uLogoSize:   { value: new THREE.Vector2(sw, sh) },
-        }}
-      />
-    </mesh>
-  );
-}
+// Wall-clock time — unaffected by rAF throttling or R3F lifecycle
+const HERO_START = typeof performance !== "undefined" ? performance.now() : 0;
+const heroTime = () => (performance.now() - HERO_START) / 1000;
 
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 
 export default function Hero() {
+  const canvasRef   = useRef<HTMLCanvasElement>(null);
   const mouseRef    = useRef({ x: 0.5, y: 0.5 });
   const velocityRef = useRef(0);
   const lastRef     = useRef({ x: 0.5, y: 0.5 });
-  const [logoTex, setLogoTex] = useState<THREE.CanvasTexture | null>(null);
 
-  // Build logo canvas texture once
+  // Raw Three.js scene — no R3F, so the render loop is entirely ours and
+  // never paused by R3F's focus/visibility lifecycle management.
   useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    // Orthographic camera: world space [-1, 1] × [-1, 1]
+    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 2);
+    camera.position.z = 1;
+
+    const scene    = new THREE.Scene();
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: false });
+    renderer.setPixelRatio(1);
+
+    // Background plane fills the full viewport
+    const bgMat  = new THREE.ShaderMaterial({
+      vertexShader: vert, fragmentShader: bgFrag,
+      uniforms: { uTime: { value: 0 } },
+    });
+    scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), bgMat));
+
+    // Logo material + mesh (added once texture loads)
+    const logoMat = new THREE.ShaderMaterial({
+      vertexShader: vert, fragmentShader: logoFrag,
+      uniforms: {
+        uLogo:       { value: null },
+        uTime:       { value: 0 },
+        uMouse:      { value: new THREE.Vector2(0.5, 0.5) },
+        uVelocity:   { value: 0 },
+        uLogoOffset: { value: new THREE.Vector2() },
+        uLogoSize:   { value: new THREE.Vector2() },
+      },
+    });
+    let logoMesh: THREE.Mesh | null = null;
+
     const S = 2, W = LOGO_CSS_W * S, H = LOGO_CSS_H * S;
-    const canvas = document.createElement("canvas");
-    canvas.width = W; canvas.height = H;
-    const ctx = canvas.getContext("2d")!;
+    const logoCanvas = document.createElement("canvas");
+    logoCanvas.width = W; logoCanvas.height = H;
+    const ctx = logoCanvas.getContext("2d")!;
     ctx.fillStyle = "#fa3d00";
     ctx.fillRect(0, 0, W, H);
     const img = new Image();
     img.onload = () => {
       ctx.drawImage(img, 44*S, 28*S, W - 44*S*2, H - 28*S*2);
-      const tex = new THREE.CanvasTexture(canvas);
+      const tex = new THREE.CanvasTexture(logoCanvas);
       tex.needsUpdate = true;
-      setLogoTex(tex);
+      logoMat.uniforms.uLogo.value = tex;
+      logoMesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), logoMat);
+      logoMesh.position.z = 0.01;
+      scene.add(logoMesh);
     };
     img.src = "/Assets/Brand/B53_HorizontalLogo.svg";
+
+    // Update renderer size + logo scale/uniforms
+    const syncSize = () => {
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
+      renderer.setSize(w, h, false);
+      if (logoMesh) {
+        const swUv = LOGO_CSS_W / w;
+        const shUv = LOGO_CSS_H / h;
+        logoMesh.scale.set(swUv * 2, shUv * 2, 1);
+        logoMat.uniforms.uLogoOffset.value.set(0.5 - swUv * 0.5, 0.5 - shUv * 0.5);
+        logoMat.uniforms.uLogoSize.value.set(swUv, shUv);
+      }
+    };
+
+    syncSize();
+    const ro = new ResizeObserver(syncSize);
+    ro.observe(canvas);
+
+    // Render loop — we own this entirely, no R3F involved
+    let rafId: number;
+    const tick = () => {
+      const t = heroTime();
+      bgMat.uniforms.uTime.value = t;
+
+      if (logoMesh) {
+        syncSize();
+        logoMat.uniforms.uTime.value     = t;
+        logoMat.uniforms.uMouse.value.set(mouseRef.current.x, mouseRef.current.y);
+        logoMat.uniforms.uVelocity.value = velocityRef.current;
+      }
+
+      renderer.render(scene, camera);
+      rafId = requestAnimationFrame(tick);
+    };
+    tick();
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      ro.disconnect();
+      bgMat.dispose();
+      logoMat.dispose();
+      renderer.dispose();
+    };
   }, []);
 
-  // Mouse tracking — smoothed velocity, no direction needed
+  // Mouse tracking + velocity decay
   useEffect(() => {
     let raf: number;
     const onMove = (e: MouseEvent) => {
       const x = e.clientX / window.innerWidth;
       const y = 1 - e.clientY / window.innerHeight;
       const speed = Math.hypot(x - lastRef.current.x, y - lastRef.current.y);
-      // EMA smoothing to prevent jitter
       velocityRef.current = velocityRef.current * 0.7 + Math.min(speed * 50, 1.0) * 0.3;
       lastRef.current  = { x, y };
       mouseRef.current = { x, y };
@@ -210,11 +218,7 @@ export default function Hero() {
 
   return (
     <section className="relative w-screen h-screen overflow-hidden bg-[#0a0a0a]">
-      <Canvas camera={{ position: [0, 0, 1] }} style={{ width: "100%", height: "100%" }}
-        gl={{ antialias: false }} dpr={1} frameloop="always">
-        <NoisePlane />
-        {logoTex && <LogoPlane texture={logoTex} mouseRef={mouseRef} velocityRef={velocityRef} />}
-      </Canvas>
+      <canvas ref={canvasRef} style={{ width: "100%", height: "100%" }} />
     </section>
   );
 }

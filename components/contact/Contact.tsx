@@ -29,7 +29,7 @@ function Field({
 const inputClass =
   "w-full bg-transparent border-b border-white/15 pb-3 font-geist text-[#f0f0f0] placeholder-[#888880]/50 outline-none focus:border-[#fa3d00] transition-colors duration-300";
 
-export default function Contact() {
+export default function Contact({ hideTitle }: { hideTitle?: boolean }) {
   const sectionRef  = useRef<HTMLElement>(null);
   const inView      = useInView(sectionRef, { once: true, margin: "-60px" });
 
@@ -61,20 +61,22 @@ export default function Contact() {
   return (
     <section
       ref={sectionRef}
-      className="bg-[#0a0a0a] px-6 md:px-16 lg:px-24 py-24 md:py-32"
+      className={`bg-[#0a0a0a] px-6 md:px-16 lg:px-24 pb-24 md:pb-32 ${hideTitle ? "pt-12 md:pt-16" : "pt-24 md:pt-32"}`}
     >
       <div className="max-w-2xl mx-auto">
 
         {/* Title */}
-        <motion.h2
-          initial={{ opacity: 0, y: 24 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
-          className="font-niagara text-[#f0f0f0] uppercase text-center mb-16"
-          style={{ fontSize: "clamp(2rem, 4vw, 3.5rem)", letterSpacing: "0.05em" }}
-        >
-          Get in Touch
-        </motion.h2>
+        {!hideTitle && (
+          <motion.h2
+            initial={{ opacity: 0, y: 24 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+            className="font-niagara text-[#f0f0f0] uppercase text-center mb-16"
+            style={{ fontSize: "clamp(2rem, 4vw, 3.5rem)", letterSpacing: "0.05em" }}
+          >
+            Get in Touch
+          </motion.h2>
+        )}
 
         {/* Form */}
         <motion.form
@@ -138,14 +140,14 @@ export default function Contact() {
             <button
               type="submit"
               disabled={status === "loading" || status === "success"}
-              className="relative overflow-hidden rounded-full border border-white/30 font-geist tracking-[0.2em] uppercase transition-colors disabled:opacity-50 group"
-              style={{ fontSize: "0.65rem", height: "3rem", width: "100%" }}
+              className="relative overflow-hidden border border-[#fa3d00] font-geist tracking-widest uppercase disabled:opacity-50 group w-full"
+              style={{ fontSize: "0.6rem", height: "3rem", backgroundColor: "#fa3d00" }}
             >
-              {/* Hover fill */}
-              <span className="absolute inset-0 rounded-full bg-[#f0f0f0] scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]" />
+              {/* Hover fill — white sweeps over orange */}
+              <span className="absolute inset-0 bg-[#f0f0f0] scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]" />
               <span
                 className="relative z-10 select-none"
-                style={{ color: "#f0f0f0", mixBlendMode: "difference" }}
+                style={{ color: "#000000" }}
               >
                 {status === "loading" ? "Sending..." : status === "success" ? "Sent ✓" : "Send Message"}
               </span>

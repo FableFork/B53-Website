@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import TransitionLink from "@/components/TransitionLink";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
@@ -14,7 +14,7 @@ export default function Nav() {
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 backdrop-blur-lg bg-[#0a0a0a]/25">
         <div className="flex items-center justify-between px-6 md:px-10 h-16">
           {/* Logo */}
-          <Link href="/" onClick={() => setMenuOpen(false)}>
+          <TransitionLink href="/" onClick={() => setMenuOpen(false)}>
             <Image
               src="/Assets/Brand/B53_Logo.png"
               alt="B53"
@@ -22,11 +22,11 @@ export default function Nav() {
               height={29}
               priority
             />
-          </Link>
+          </TransitionLink>
 
           {/* Hamburger / Close */}
           <button
-            className="flex flex-col justify-center items-center w-8 h-8 gap-[5px]"
+            className="relative z-[60] flex flex-col justify-center items-center w-8 h-8 gap-[5px]"
             onClick={() => setMenuOpen((v) => !v)}
             aria-label="Toggle menu"
           >

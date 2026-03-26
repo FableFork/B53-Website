@@ -1,7 +1,6 @@
 import { projects, StyleframeEntry, VideoEntry } from "@/data/projects";
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import Nav from "@/components/nav/Nav";
 
 export function generateStaticParams() {
   return projects.map((p) => ({ slug: p.slug }));
@@ -156,8 +155,6 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
 
   return (
     <main className="min-h-screen bg-[#0a0a0a]">
-      <Nav />
-
       {/* 3-column header */}
       <section className="px-6 md:px-16 lg:px-24 pt-28 pb-12 md:pt-32 md:pb-16 border-b border-white/8">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-8 md:gap-6">

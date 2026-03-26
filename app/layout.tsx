@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import Nav from "@/components/nav/Nav";
+import { TransitionProvider } from "@/context/TransitionContext";
 
 const niagara = localFont({
   src: "./fonts/NiagaraSolid.ttf",
@@ -28,9 +29,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${niagara.variable} ${geist.variable} antialiased`}>
+        <TransitionProvider>
           <Nav />
           {children}
-        </body>
+        </TransitionProvider>
+      </body>
     </html>
   );
 }
