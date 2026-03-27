@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import Nav from "@/components/nav/Nav";
 import { TransitionProvider } from "@/context/TransitionContext";
+import { Analytics } from "@vercel/analytics/next";
 
 const niagara = localFont({
   src: "./fonts/NiagaraSolid.ttf",
@@ -33,6 +34,7 @@ export default function RootLayout({
           <Nav />
           {children}
         </TransitionProvider>
+        <Analytics />
       </body>
     </html>
   );
