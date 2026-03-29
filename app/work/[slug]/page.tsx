@@ -153,8 +153,8 @@ function SynopsisBody({ text, centered }: { text: string; centered?: boolean }) 
 function FeatureItem({ section }: { section: FeatureSection }) {
   return (
     <div className="flex flex-col gap-3 border-t border-white/8 pt-8">
-      <h3 className="font-niagara text-[#fa3d00] uppercase"
-        style={{ fontSize: "clamp(1.4rem, 2.5vw, 2rem)" }}>
+      <h3 className="font-geist text-[#fa3d00]"
+        style={{ fontSize: "clamp(1rem, 1.5vw, 1.15rem)", fontWeight: 500 }}>
         {section.title}
       </h3>
       <p className="font-geist text-[#888880] leading-relaxed max-w-2xl" style={{ fontSize: "0.95rem" }}>
