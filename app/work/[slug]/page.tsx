@@ -1,6 +1,7 @@
-import { projects, StyleframeEntry, VideoEntry } from "@/data/projects";
+import { projects, StyleframeEntry, VideoEntry, FeatureSection } from "@/data/projects";
 import { notFound } from "next/navigation";
 import Image from "next/image";
+import LaunchDemoButton from "@/components/LaunchDemoButton";
 
 export function generateStaticParams() {
   return projects.map((p) => ({ slug: p.slug }));
@@ -8,9 +9,9 @@ export function generateStaticParams() {
 
 // ─── Section label (matches header style) ──────────────────────────────────
 
-function SectionLabel({ label }: { label: string }) {
+function SectionLabel({ label, align = "center" }: { label: string; align?: "center" | "left" }) {
   return (
-    <div className="flex flex-col items-center gap-3 mb-8">
+    <div className={`flex flex-col gap-3 mb-8 ${align === "left" ? "items-start" : "items-center"}`}>
       <span className="font-geist text-[#888880] uppercase tracking-widest" style={{ fontSize: "0.6rem" }}>
         {label}
       </span>
@@ -147,6 +148,22 @@ function SynopsisBody({ text, centered }: { text: string; centered?: boolean }) 
   );
 }
 
+// ─── Interactive demo content ────────────────────────────────────────────────
+
+function FeatureItem({ section }: { section: FeatureSection }) {
+  return (
+    <div className="flex flex-col gap-3 border-t border-white/8 pt-8">
+      <h3 className="font-niagara text-[#fa3d00] uppercase"
+        style={{ fontSize: "clamp(1.4rem, 2.5vw, 2rem)" }}>
+        {section.title}
+      </h3>
+      <p className="font-geist text-[#888880] leading-relaxed max-w-2xl" style={{ fontSize: "0.95rem" }}>
+        {section.body}
+      </p>
+    </div>
+  );
+}
+
 // ─── Page ───────────────────────────────────────────────────────────────────
 
 export default function ProjectPage({ params }: { params: { slug: string } }) {
@@ -207,7 +224,7 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
         </div>
       </section>
 
-      {/* Synopsis — always shown for motion design */}
+      {/* Motion design — synopsis */}
       {project.tab === "motion" && (
         <section className="px-6 md:px-16 lg:px-24 py-16 md:py-24 border-b border-white/8">
           <SectionLabel label="Synopsis" />
@@ -215,6 +232,55 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
             ? <SynopsisBody text={project.synopsis} centered={project.synopsisCentered} />
             : <p className="font-geist text-[#888880] text-center text-sm">Coming soon.</p>
           }
+        </section>
+      )}
+
+      {/* Interactive demo — hero statement + launch button */}
+      {project.tab === "interactive" && project.heroStatement && (
+        <section className="px-6 md:px-16 lg:px-24 py-16 md:py-24 border-b border-white/8 flex flex-col items-center gap-10">
+          <p className="font-geist text-[#f0f0f0] text-center leading-snug max-w-4xl"
+            style={{ fontSize: "clamp(1.2rem, 2.2vw, 1.75rem)" }}>
+            {project.heroStatement}
+          </p>
+          {project.demoUrl && (
+            <div className="w-full max-w-xl">
+              <LaunchDemoButton href={`/work/${project.slug}/demo`} />
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* Interactive demo — project summary */}
+      {project.tab === "interactive" && project.synopsis && (
+        <section className="px-6 md:px-16 lg:px-24 py-16 md:py-24 border-b border-white/8">
+          <div className="max-w-3xl mx-auto">
+            <SectionLabel label="Overview" align="left" />
+            <SynopsisBody text={project.synopsis} />
+          </div>
+        </section>
+      )}
+
+      {/* Interactive demo — feature sections */}
+      {project.tab === "interactive" && project.featureSections && project.featureSections.length > 0 && (
+        <section className="px-6 md:px-16 lg:px-24 py-16 md:py-24 border-b border-white/8">
+          <div className="max-w-3xl mx-auto flex flex-col gap-8">
+            <SectionLabel label="The Experience" align="left" />
+            {project.featureSections.map((s, i) => (
+              <FeatureItem key={i} section={s} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Interactive demo — technical notes */}
+      {project.tab === "interactive" && project.technicalNotes && (
+        <section className="px-6 md:px-16 lg:px-24 py-16 md:py-24 border-b border-white/8">
+          <div className="max-w-3xl mx-auto">
+            <SectionLabel label="Technical Notes" align="left" />
+            <p className="font-geist text-[#888880] leading-relaxed" style={{ fontSize: "0.8rem" }}>
+              {project.technicalNotes}
+            </p>
+          </div>
         </section>
       )}
 

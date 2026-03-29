@@ -69,8 +69,8 @@ function ProjectCard({ project, index }: { project: (typeof projects)[number]; i
 // ─── Tabs ─────────────────────────────────────────────────────────────────────
 
 const TABS = [
-  { id: "motion", label: "Motion Design" },
-  // { id: "interactive", label: "Interactive Demos" }, // temporarily hidden
+  { id: "motion",      label: "Motion Design" },
+  { id: "interactive", label: "Interactive Demos" },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];

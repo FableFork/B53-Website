@@ -13,6 +13,11 @@ export type StyleframeEntry = {
   height: number;
 };
 
+export type FeatureSection = {
+  title: string;
+  body:  string;
+};
+
 export type Project = {
   slug:          string;
   title:         string;
@@ -28,6 +33,11 @@ export type Project = {
   styleframeLayout?:     "auto" | "grid";        // default: "auto" (landscape=full-width, square=grid)
   hideStyleframeLabel?:  boolean;                // hides "Styleframes" title when true
   synopsisCentered?:     boolean;                // centers synopsis text
+  // interactive demo fields
+  heroStatement?:    string;                     // large opening statement
+  featureSections?:  FeatureSection[];           // "The Experience" subsections
+  technicalNotes?:   string;                     // smaller-type technical section
+  demoUrl?:          string;                     // if set, shows Launch Demo button
 };
 
 export const projects: Project[] = [
@@ -196,12 +206,34 @@ export const projects: Project[] = [
   },
   // ─── Interactive Demos ────────────────────────────────────────────────────
   {
-    slug:     "porsche-configurator",
-    title:    "Porsche Configurator",
-    year:     "",
-    roles:    [],
-    synopsis: "",
-    cover:    "",
-    tab:      "interactive",
+    slug:  "b53-auto",
+    title: "B53-Auto",
+    year:  "2026",
+    roles: ["Demo"],
+    cover: "/ProjectThumbnails/auto1.png",
+    tab:   "interactive",
+
+    heroStatement: "A real-time automotive experience built entirely in Unreal Engine 5 — not rendered, not pre-baked. Every light, every reflection, every color change happens live.",
+
+    synopsis: "B53 Auto is an interactive vehicle configurator demonstrating what real-time 3D can do for automotive presentation. Built as a portfolio experience, it explores how brands can move beyond static renders and pre-rendered video — putting the viewer in control of how a vehicle is seen and felt.\n\nThe configurator runs on a cloud GPU server and streams directly to any browser via pixel streaming. No downloads, no plugins, no compromise on visual quality.",
+
+    featureSections: [
+      {
+        title: "Five Camera Angles",
+        body:  "Each angle is a directed shot — not just a repositioned camera. The lighting shifts per angle, responding to the composition the way a photographer would adjust a studio setup between shots. Front three-quarter, side profile, rear three-quarter, top-down, and an interior close-up.",
+      },
+      {
+        title: "Two Scenes",
+        body:  "Switch between a dramatic orange studio environment with cinematic rim lighting, and a clean white studio with neutral exposure. Same car, completely different mood.",
+      },
+      {
+        title: "Live Paint Configuration",
+        body:  "Change the vehicle's paint color in real time. No loading, no transition — the material updates instantly across every surface, with reflections and lighting responding accordingly.",
+      },
+    ],
+
+    technicalNotes: "Built in Unreal Engine 5 using Lumen for global illumination and dynamic lighting. Camera transitions driven by Set View Target with Blend. Lighting mood changes animated via Level Sequences. Color switching via Dynamic Material Instances with runtime Vector Parameter updates. Streamed via Vagon pixel streaming infrastructure on RTX-enabled cloud GPUs.",
+
+    demoUrl: "https://streams.vagon.io/streams/aa83bde9-9ca7-4ff5-a891-fc9643eaeb5e",
   },
 ];
