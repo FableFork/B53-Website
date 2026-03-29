@@ -9,7 +9,7 @@ export default function B53AutoDemo() {
       <div className="fixed inset-0" style={{ zIndex: 200 }}>
         <iframe
           id="vagonFrame"
-          src="https://streams.vagon.io/streams/a3b5e8fb-6fe2-4fbd-805b-0da34b776eb6"
+          src="https://streams.vagon.io/streams/829d0c06-f845-4d3f-bc0f-7d16a3bc55f7"
           allow="microphone *; clipboard-read *; clipboard-write *; encrypted-media *; fullscreen *;"
           style={{ width: "100%", height: "100%", border: "none", display: "block" }}
         />
