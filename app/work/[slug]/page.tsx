@@ -237,7 +237,19 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
 
       {/* Interactive demo — hero statement + launch button */}
       {project.tab === "interactive" && project.heroStatement && (
-        <section className="px-6 md:px-16 lg:px-24 py-16 md:py-24 border-b border-white/8 flex flex-col items-center gap-10">
+        <section className="border-b border-white/8 flex flex-col items-center gap-10 pb-16 md:pb-24">
+          {project.cover && (
+            <Image
+              src={project.cover}
+              alt={project.title}
+              width={0}
+              height={0}
+              sizes="100vw"
+              style={{ width: "100%", height: "auto" }}
+              priority
+            />
+          )}
+          <div className="px-6 md:px-16 lg:px-24 w-full flex flex-col items-center gap-10">
           <p className="font-geist text-[#f0f0f0] text-center leading-snug max-w-4xl"
             style={{ fontSize: "clamp(1.2rem, 2.2vw, 1.75rem)" }}>
             {project.heroStatement}
@@ -247,6 +259,7 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
               <LaunchDemoButton href={`/work/${project.slug}/demo`} />
             </div>
           )}
+          </div>
         </section>
       )}
 
