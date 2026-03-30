@@ -18,8 +18,12 @@ const geist = localFont({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://b53studios.com"),
   title: "B53 Studios",
   description: "Creative technologist. Real-time interactive experiences.",
+  alternates: {
+    canonical: "/",
+  },
 };
 
 export default function RootLayout({

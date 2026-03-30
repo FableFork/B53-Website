@@ -2,9 +2,16 @@ import { projects, StyleframeEntry, VideoEntry, FeatureSection } from "@/data/pr
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import LaunchDemoButton from "@/components/LaunchDemoButton";
+import type { Metadata } from "next";
 
 export function generateStaticParams() {
   return projects.map((p) => ({ slug: p.slug }));
+}
+
+export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
+  return {
+    alternates: { canonical: `/work/${params.slug}` },
+  };
 }
 
 // ─── Section label (matches header style) ──────────────────────────────────
