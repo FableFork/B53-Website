@@ -320,8 +320,8 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
         </section>
       )}
 
-      {/* Videos */}
-      {project.videos && project.videos.length > 0 && (
+      {/* Videos — motion design only */}
+      {project.tab === "motion" && project.videos && project.videos.length > 0 && (
         <section className="border-b border-white/8">
           {project.videoLayout === "side-by-side" ? (
             <div className="flex flex-col md:flex-row gap-2">
