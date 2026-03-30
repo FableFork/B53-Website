@@ -215,6 +215,8 @@ export const projects: Project[] = [
 
     heroStatement: "A real-time automotive experience built entirely in Unreal Engine 5 — not rendered, not pre-baked. Every light, every reflection, every color change happens live.",
 
+    videos: [{ type: "vimeo", id: "1178372478", paddingPercent: "75%" }],
+
     synopsis: "B53 Auto is an interactive vehicle configurator demonstrating what real-time 3D can do for automotive presentation. Built as a portfolio experience, it explores how brands can move beyond static renders and pre-rendered video — putting the viewer in control of how a vehicle is seen and felt.\n\nThe configurator runs on a cloud GPU server and streams directly to any browser via pixel streaming. No downloads, no plugins, no compromise on visual quality.",
 
     featureSections: [
