@@ -236,6 +236,6 @@ export const projects: Project[] = [
 
     technicalNotes: "Built in Unreal Engine 5 using Lumen for global illumination and dynamic lighting. Camera transitions driven by Set View Target with Blend. Lighting mood changes animated via Level Sequences. Color switching via Dynamic Material Instances with runtime Vector Parameter updates. Streamed via pixel streaming infrastructure on RTX-enabled cloud GPUs.",
 
-    demoUrl: "https://streams.vagon.io/streams/129c8456-8175-43c0-9dce-21f0d6d0ada3",
+    demoUrl: "https://streams.vagon.io/streams/f819a78a-b4b1-4c92-8304-d3dd74cc7d81",
   },
 ];
