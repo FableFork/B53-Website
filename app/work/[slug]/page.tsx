@@ -1,7 +1,7 @@
 import { projects, StyleframeEntry, VideoEntry, FeatureSection } from "@/data/projects";
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import LaunchDemoButton from "@/components/LaunchDemoButton";
+import RequestDemoModal from "@/components/RequestDemoModal";
 import type { Metadata } from "next";
 
 export function generateStaticParams() {
@@ -242,7 +242,7 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
         </section>
       )}
 
-      {/* Interactive demo — hero statement + launch button */}
+      {/* Interactive demo — cover + hero statement */}
       {project.tab === "interactive" && project.heroStatement && (
         <section className="border-b border-white/8 flex flex-col items-center gap-10 pb-16 md:pb-24">
           {project.cover && (
@@ -257,41 +257,47 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
             />
           )}
           <div className="px-6 md:px-16 lg:px-24 w-full flex flex-col items-center gap-10">
-            <p className="font-geist text-[#f0f0f0] text-center leading-snug max-w-4xl"
+            <p className="font-geist text-[#f0f0f0] text-center leading-snug max-w-3xl"
               style={{ fontSize: "clamp(1.2rem, 2.2vw, 1.75rem)" }}>
               {project.heroStatement}
             </p>
-            {project.demoUrl && (
-              <div className="w-full max-w-xl">
-                <LaunchDemoButton href={`/work/${project.slug}/demo`} />
-              </div>
-            )}
           </div>
         </section>
       )}
 
-      {/* Interactive demo — project summary */}
+      {/* Interactive demo — overview (synopsis) */}
       {project.tab === "interactive" && project.synopsis && (
         <section className="px-6 md:px-16 lg:px-24 py-16 md:py-24 border-b border-white/8">
-          <div className="max-w-3xl mx-auto flex flex-col gap-12">
-            <div>
-              <SectionLabel label="Overview" align="left" />
-              <SynopsisBody text={project.synopsis} />
-            </div>
-            {project.videos && project.videos.length > 0 && (
-              <div className="flex flex-col gap-4">
-                {project.videos.map((v, i) => v.type === "vimeo" && (
-                  <div key={i} style={{ padding: `${v.paddingPercent ?? "56.25%"} 0 0 0`, position: "relative" }}>
-                    <iframe
-                      src={`https://player.vimeo.com/video/${v.id}?badge=0&autopause=0&player_id=0&app_id=58479&title=0&byline=0&portrait=0&like=0&share=0`}
-                      frameBorder="0"
-                      allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
-                      style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
-                    />
-                  </div>
-                ))}
+          <div className="max-w-3xl mx-auto">
+            <SectionLabel label="Overview" align="left" />
+            <SynopsisBody text={project.synopsis} />
+          </div>
+        </section>
+      )}
+
+      {/* Interactive demo — video (wider than text column on desktop) */}
+      {project.tab === "interactive" && project.videos && project.videos.length > 0 && (
+        <section className="px-6 md:px-16 lg:px-24 py-0 pb-16 md:pb-24 border-b border-white/8">
+          <div className="mx-auto max-w-3xl md:max-w-[72rem] flex flex-col gap-4">
+            {project.videos.map((v, i) => v.type === "vimeo" && (
+              <div key={i} style={{ padding: `${v.paddingPercent ?? "56.25%"} 0 0 0`, position: "relative" }}>
+                <iframe
+                  src={`https://player.vimeo.com/video/${v.id}?badge=0&autopause=0&player_id=0&app_id=58479&title=0&byline=0&portrait=0&like=0&share=0`}
+                  frameBorder="0"
+                  allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
+                  style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
+                />
               </div>
-            )}
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Interactive demo — Request a Demo button */}
+      {project.tab === "interactive" && project.demoUrl && (
+        <section className="px-6 md:px-16 lg:px-24 py-16 md:py-24 border-b border-white/8 flex justify-center">
+          <div className="w-full max-w-xl">
+            <RequestDemoModal subject={`Request Demo of ${project.title}`} />
           </div>
         </section>
       )}
