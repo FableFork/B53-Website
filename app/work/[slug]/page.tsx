@@ -244,7 +244,7 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
 
       {/* Interactive demo — cover + hero statement */}
       {project.tab === "interactive" && project.heroStatement && (
-        <section className="flex flex-col items-center gap-10 pb-16 md:pb-24">
+        <section className="flex flex-col items-center gap-8 pb-8 md:pb-10">
           {project.cover && (
             <Image
               src={project.cover}
@@ -267,7 +267,7 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
 
       {/* Interactive demo — overview (synopsis) */}
       {project.tab === "interactive" && project.synopsis && (
-        <section className="px-6 md:px-16 lg:px-24 py-16 md:py-24">
+        <section className="px-6 md:px-16 lg:px-24 pt-8 pb-6 md:pt-10 md:pb-8">
           <div className="max-w-3xl mx-auto">
             <SectionLabel label="Overview" align="left" />
             <SynopsisBody text={project.synopsis} />
@@ -277,7 +277,7 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
 
       {/* Interactive demo — video (wider than text column on desktop) */}
       {project.tab === "interactive" && project.videos && project.videos.length > 0 && (
-        <section className="px-6 md:px-16 lg:px-24 py-0 pb-16 md:pb-24">
+        <section className="px-6 md:px-16 lg:px-24 pb-8 md:pb-10">
           <div className="mx-auto max-w-3xl md:max-w-[72rem] flex flex-col gap-4">
             {project.videos.map((v, i) => v.type === "vimeo" && (
               <div key={i} style={{ padding: `${v.paddingPercent ?? "56.25%"} 0 0 0`, position: "relative" }}>
