@@ -1,16 +1,54 @@
 [
-  { "slug": "daif-2025", "src": "/Projects/dubai-ai-festival/05587f233410695.68af069b96d03.png" },
-  { "slug": "lueur", "src": "/Projects/lueur/36c644176748525.64ca476cb264e.png" },
-  { "slug": "dreams", "src": "/Projects/dreams/72c109121631423.60c9d32aede7d.jpg" },
-  { "slug": "urban", "src": "/Projects/urban/0de262128371097.6154b005cd521.jpg" },
-  { "slug": "sony", "src": "/Projects/sony/55c08c187573843.658be9ae80582.png" },
-  { "slug": "beyond", "src": "/Projects/beyond/494e24119752225.60a42743aab82.jpg" },
-  { "slug": "leap-2025", "src": "/Projects/lean-leap-2025/8da9b6219091735.67ac4ecd791a1.png" },
-  { "slug": "daif-2025", "src": "/Projects/dubai-ai-festival/37009f233410695.68af069b97767.png" },
-  { "slug": "lueur", "src": "/Projects/lueur/9aa299176748525.64ca476cb7475.png" },
-  { "slug": "dreams", "src": "/Projects/dreams/991e31121631423.60c9d32af02c8.jpg" },
-  { "slug": "urban", "src": "/Projects/urban/c8c726128371097.6154b005ce010.png" },
-  { "slug": "sony", "src": "/Projects/sony/640b85187573843.658be9ae7f7fa.png" },
-  { "slug": "beyond", "src": "/Projects/beyond/6a70ab119752225.60a42743abaee.png" },
-  { "slug": "leap-2025", "src": "/Projects/lean-leap-2025/1c88c1219091735.67ac5432ec032.png" }
+  {
+    "slug": "lueur",
+    "src": "/Projects/lueur/36c644176748525.64ca476cb264e.png"
+  },
+  {
+    "slug": "dreams",
+    "src": "/Projects/dreams/72c109121631423.60c9d32aede7d.jpg"
+  },
+  {
+    "slug": "leap-2025",
+    "src": "/Projects/lean-leap-2025/50347b219091735.67ac5432ec4e7.png"
+  },
+  {
+    "slug": "urban",
+    "src": "/Projects/urban/0de262128371097.6154b005cd521.jpg"
+  },
+  {
+    "slug": "sony",
+    "src": "/Projects/sony/55c08c187573843.658be9ae80582.png"
+  },
+  {
+    "slug": "beyond",
+    "src": "/Projects/beyond/494e24119752225.60a42743aab82.jpg"
+  },
+  {
+    "slug": "dreams",
+    "src": "/ProjectThumbnails/dream1.png"
+  },
+  {
+    "slug": "daif-2025",
+    "src": "/Projects/dubai-ai-festival/37009f233410695.68af069b97767.png"
+  },
+  {
+    "slug": "lueur",
+    "src": "/Projects/lueur/9aa299176748525.64ca476cb7475.png"
+  },
+  {
+    "slug": "urban",
+    "src": "/Projects/urban/c8c726128371097.6154b005ce010.png"
+  },
+  {
+    "slug": "beyond",
+    "src": "/Projects/beyond/6a70ab119752225.60a42743abaee.png"
+  },
+  {
+    "slug": "leap-2025",
+    "src": "/Projects/lean-leap-2025/1c88c1219091735.67ac5432ec032.png"
+  },
+  {
+    "slug": "sony",
+    "src": "/Projects/sony/b66411187573843.658be9ae7ea2f.png"
+  }
 ]
