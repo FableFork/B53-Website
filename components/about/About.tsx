@@ -1,7 +1,13 @@
 "use client";
 
+// About — personnel file. Fit-text heading (ResizeObserver binary search,
+// carried over from v1), spec-sheet data table, grayscale portrait that
+// snaps to color on hover.
+
 import Image from "next/image";
 import { useRef, useEffect } from "react";
+import SectionRule from "@/components/ui/SectionRule";
+import { site } from "@/data/site";
 
 export default function About() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -14,7 +20,6 @@ export default function About() {
       if (!container || !line1) return;
 
       const available = container.clientWidth;
-      // Binary search for the largest font size where line1 fits on one line
       let lo = 10, hi = 300;
       while (hi - lo > 0.5) {
         const mid = (lo + hi) / 2;
@@ -22,10 +27,7 @@ export default function About() {
         if (line1.scrollWidth <= available) lo = mid;
         else hi = mid;
       }
-      // Apply to the whole heading block
-      if (containerRef.current) {
-        containerRef.current.style.fontSize = `${lo}px`;
-      }
+      if (containerRef.current) containerRef.current.style.fontSize = `${lo}px`;
     };
 
     fit();
@@ -34,45 +36,62 @@ export default function About() {
     return () => ro.disconnect();
   }, []);
 
+  const a = site.about;
+
   return (
-    <section className="w-full min-h-screen bg-[#0a0a0a] px-10 md:px-20 flex items-center">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center w-full max-w-7xl mx-auto py-24">
+    <section className="relative z-[2] bg-[#0a0a0a] px-5 md:px-10 py-16 md:py-24">
+      <SectionRule index="01" title="About" meta={a.sectionMeta} />
 
-        {/* Left — text */}
-        <div className="flex flex-col gap-10">
-
-          {/* Display heading */}
-          <div ref={containerRef} className="leading-none uppercase text-[#f0f0f0] font-niagara w-full overflow-hidden">
-            <div ref={line1Ref} className="whitespace-nowrap">Creative Technologist</div>
-            <div className="whitespace-nowrap"><span className="mr-2" style={{ WebkitTextStroke: "2px #f0f0f0" }}>×</span>Motion Designer</div>
+      <div className="grid grid-cols-1 md:grid-cols-[1.2fr_0.8fr] gap-10 md:gap-16 items-start max-w-7xl mx-auto">
+        {/* Left — heading, copy, data table */}
+        <div>
+          <div
+            ref={containerRef}
+            className="leading-none uppercase text-[#f0f0f0] font-niagara w-full overflow-hidden"
+            style={{ lineHeight: 0.95 }}
+          >
+            <div ref={line1Ref} className="whitespace-nowrap">{a.headingLine1}</div>
+            <div className="whitespace-nowrap">
+              <span className="mr-2" style={{ WebkitTextStroke: "2px #f0f0f0", color: "transparent" }}>×</span>
+              {a.headingLine2}
+            </div>
           </div>
 
-          {/* Body */}
-          <p
-            className="text-xl text-[#f0f0f0] leading-relaxed font-geist text-left"
-          >
-            At the intersection of technology and direction. Crafting real-time
-            3D experiences, interactive visualizations, and motion work that
-            doesn&apos;t just function&hellip; it feels. From architectural
-            spaces to product worlds, built with the industry standard tools and
-            designed to leave an impression.
+          <p className="mt-9 text-lg md:text-xl text-[#f0f0f0] leading-relaxed font-geist max-w-xl">
+            {a.paragraph}
           </p>
 
-        </div>
-
-        {/* Right — image */}
-        <div className="flex justify-center md:justify-end">
-          <div className="relative w-full max-w-lg overflow-hidden rounded-2xl">
-            <Image
-              src="/Assets/Misc/ShivaTunoly_shoot.png"
-              alt="B53"
-              width={600}
-              height={800}
-              className="w-full h-auto object-cover"
-            />
+          <div className="mt-10">
+            {a.dataRows.map(row => (
+              <div key={row.key} className="flex border-t border-hairline py-3">
+                <span className="mono-label text-muted w-36 shrink-0">{row.key} /</span>
+                <span className="mono-label text-[#f0f0f0]">{row.value}</span>
+              </div>
+            ))}
+            {a.statusRow && (
+              <div className="flex border-t border-b border-hairline py-3">
+                <span className="mono-label text-muted w-36 shrink-0">Status /</span>
+                <span className="mono-label text-[#f0f0f0]">
+                  <span className="status-dot" />{site.footer.status}
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
+        {/* Right — portrait */}
+        <div className="relative group">
+          <Image
+            src={a.portrait}
+            alt="B53"
+            width={600}
+            height={800}
+            className="w-full h-auto object-cover grayscale contrast-105 group-hover:grayscale-0 group-hover:contrast-100"
+          />
+          <span className="absolute bottom-3 left-3 bg-[#0a0a0a] px-2.5 py-1.5 mono-label text-brand">
+            {a.portraitCaption}
+          </span>
+        </div>
       </div>
     </section>
   );

@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B53 — Home Mockup v2 (Technical Brutalist)</title>
+<style>
+  @font-face { font-family: "Niagara"; src: url("../app/fonts/NiagaraSolid.ttf"); }
+  @font-face { font-family: "Geist"; src: url("../app/fonts/GeistVF.woff"); }
+  @font-face { font-family: "GeistMono"; src: url("../app/fonts/GeistMonoVF.woff"); }
+
+  :root {
+    --bg: #0a0a0a; --fg: #f0f0f0; --muted: #888880; --red: #fa3d00;
+    --hairline: rgba(255,255,255,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: var(--bg); color: var(--fg); font-family: "Geist", sans-serif; }
+  .niagara { font-family: "Niagara", "Arial Narrow", sans-serif; }
+  .mono { font-family: "GeistMono", monospace; font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; }
+  .muted { color: var(--muted); }
+  .red { color: var(--red); }
+
+  .grid-guides { position: fixed; inset: 0; pointer-events: none; z-index: 1; display: grid; grid-template-columns: repeat(12, 1fr); padding: 0 2.5rem; }
+  .grid-guides span { border-left: 1px solid rgba(255,255,255,0.04); }
+
+  /* ── Nav ──────────────────────────────────────────── */
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 50; height: 4rem; display: flex; align-items: center; justify-content: space-between; padding: 0 2.5rem; border-bottom: 1px solid var(--hairline); background: rgba(10,10,10,0.8); backdrop-filter: blur(8px); }
+  nav img { height: 30px; width: auto; display: block; } /* logo is 503×630 — never force square */
+  .nav-right { display: flex; align-items: center; gap: 2rem; }
+  .burger { display: flex; align-items: center; gap: 0.8rem; cursor: pointer; }
+  .burger .lines { display: flex; flex-direction: column; gap: 5px; }
+  .burger .lines span { display: block; width: 24px; height: 1px; background: var(--fg); }
+
+  /* ── Hero ─────────────────────────────────────────── */
+  .hero { position: relative; height: 100vh; overflow: hidden; }
+  .hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .hud { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
+  .tick { position: absolute; font-family: "GeistMono", monospace; color: rgba(255,255,255,0.25); font-size: 1rem; }
+  .tick.tl { top: 5rem; left: 2.5rem; } .tick.tr { top: 5rem; right: 2.5rem; }
+  .tick.bl { bottom: 4.5rem; left: 2.5rem; } .tick.br { bottom: 4.5rem; right: 2.5rem; }
+  .hud-top { position: absolute; top: 5.2rem; left: 0; right: 0; text-align: center; color: rgba(255,255,255,0.3); }
+  .hud-left { position: absolute; left: 2.7rem; top: 50%; transform: rotate(180deg) translateY(50%); writing-mode: vertical-rl; color: rgba(255,255,255,0.3); }
+  .hud-scroll { position: absolute; bottom: 4.5rem; right: 4.5rem; color: rgba(255,255,255,0.35); display: flex; align-items: center; gap: 0.6rem; }
+  .hud-scroll .col { display: flex; flex-direction: column; gap: 3px; }
+  .hud-scroll .col i { display: block; width: 10px; height: 1px; background: rgba(255,255,255,0.3); animation: tickpulse 1.6s infinite; }
+  .hud-scroll .col i:nth-child(2) { animation-delay: 0.2s; } .hud-scroll .col i:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes tickpulse { 0%,100% { opacity: 0.2; } 50% { opacity: 1; } }
+
+  .marquee { position: absolute; bottom: 0; left: 0; right: 0; border-top: 1px solid var(--hairline); overflow: hidden; height: 2.6rem; display: flex; align-items: center; background: var(--bg); z-index: 3; }
+  .marquee-inner { display: flex; white-space: nowrap; animation: marquee 28s linear infinite; }
+  .marquee:hover .marquee-inner { animation-play-state: paused; }
+  .marquee-inner span { color: rgba(255,255,255,0.3); padding-right: 3rem; }
+  @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* ── Section shell ────────────────────────────────── */
+  section.block { position: relative; z-index: 2; padding: 6rem 2.5rem; }
+  .rule { display: flex; align-items: baseline; justify-content: space-between; border-bottom: 1px solid var(--hairline); padding-bottom: 0.8rem; margin-bottom: 3.5rem; }
+  .rule .idx { color: var(--red); margin-right: 1rem; }
+  .rule h2 { font-family: "GeistMono", monospace; font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 400; display: inline; }
+
+  /* ── About ────────────────────────────────────────── */
+  .about-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 4rem; align-items: start; max-width: 80rem; margin: 0 auto; }
+  .about-head { font-family: "Niagara"; text-transform: uppercase; line-height: 0.95; font-size: 6.2vw; }
+  .about-head .x { -webkit-text-stroke: 2px var(--fg); color: transparent; margin-right: 0.5rem; }
+  .about-copy { margin-top: 2.2rem; font-size: 1.05rem; line-height: 1.7; color: var(--fg); max-width: 34rem; }
+  .data-table { margin-top: 2.5rem; }
+  .data-table .row { display: flex; border-top: 1px solid var(--hairline); padding: 0.75rem 0; }
+  .data-table .row:last-child { border-bottom: 1px solid var(--hairline); }
+  .data-table .k { width: 9rem; color: var(--muted); }
+  .data-table .v { color: var(--fg); }
+  .dot { display: inline-block; width: 6px; height: 6px; background: var(--red); margin-right: 0.5rem; animation: blink 2s infinite; }
+  @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.25; } }
+  .portrait { position: relative; }
+  .portrait img { width: 100%; display: block; filter: grayscale(1) contrast(1.05); }
+  .portrait:hover img { filter: none; }
+  .portrait .fig { position: absolute; bottom: 0.8rem; left: 0.8rem; background: var(--bg); padding: 0.35rem 0.6rem; color: var(--red); }
+
+  /* ── Capabilities — interactive index ─────────────── */
+  .caps-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 4rem; align-items: start; }
+  .caps-list .crow { border-top: 1px solid var(--hairline); cursor: pointer; }
+  .caps-list .crow:last-child { border-bottom: 1px solid var(--hairline); }
+  .crow-head { display: grid; grid-template-columns: 3.5rem 1fr 2rem; align-items: center; padding: 1.5rem 0; }
+  .crow-head .cidx { font-family: "GeistMono", monospace; font-size: 0.6rem; letter-spacing: 0.18em; color: var(--muted); }
+  .crow-head .ctitle { font-family: "Niagara"; text-transform: uppercase; font-size: clamp(1.7rem, 2.6vw, 2.7rem); line-height: 0.95; }
+  .crow-head .carrow { font-family: "GeistMono", monospace; color: var(--muted); text-align: right; opacity: 0; transition: transform 0.15s; }
+  .crow.active .cidx { color: var(--red); }
+  .crow.active .ctitle { color: var(--red); }
+  .crow.active .carrow { opacity: 1; color: var(--red); transform: translateX(4px); }
+  .crow-body { max-height: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.76,0,0.24,1); } /* mobile accordion */
+  .crow-body .inner { padding: 0 0 1.8rem 3.5rem; display: flex; flex-direction: column; gap: 1rem; }
+  .crow-body img { width: 100%; display: block; border: 1px solid var(--hairline); }
+  .crow-body p { color: var(--muted); font-size: 0.9rem; line-height: 1.6; }
+  .crow-body a { color: var(--red); text-decoration: none; }
+
+  .caps-preview { position: sticky; top: 6rem; border: 1px solid var(--hairline); }
+  .caps-preview .pcap { display: flex; justify-content: space-between; padding: 0.8rem 1rem; border-bottom: 1px solid var(--hairline); color: var(--muted); }
+  .caps-preview .pimg { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: #000; }
+  .caps-preview .pimg img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) brightness(0.85); }
+  .caps-preview:hover .pimg img { filter: none; }
+  .caps-preview .pbody { padding: 1.1rem 1rem 1.3rem; display: flex; flex-direction: column; gap: 0.9rem; border-top: 1px solid var(--hairline); }
+  .caps-preview .pbody p { color: var(--muted); font-size: 0.92rem; line-height: 1.65; }
+  .caps-preview .pbody a { color: var(--red); text-decoration: none; align-self: flex-start; }
+  .caps-preview .pbody a:hover { color: var(--fg); }
+  .caps-preview .corner { position: absolute; font-family: "GeistMono", monospace; color: rgba(255,255,255,0.3); font-size: 0.85rem; }
+
+  /* ── Testimonials — cards ─────────────────────────── */
+  .tcards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.2rem; align-items: stretch; }
+  .tcard { border: 1px solid var(--hairline); padding: 1.5rem 1.5rem 1.3rem; display: flex; flex-direction: column; gap: 1.1rem; transition: border-color 0.15s; height: 100%; }
+  .tcard .quote { flex: 1; }
+  .tcard .tfoot { margin-top: auto; }
+  .tcard:hover { border-color: rgba(250,61,0,0.55); }
+  .tcard .thead { display: flex; justify-content: space-between; color: var(--muted); }
+  .tcard:hover .thead .tn { color: var(--red); }
+  .tcard .quote { color: rgba(240,240,240,0.78); font-size: 0.9rem; line-height: 1.7; }
+  .tcard .quote p + p { margin-top: 0.8rem; }
+  .tcard .more { align-self: flex-start; background: none; border: none; cursor: pointer; font-family: "GeistMono", monospace; font-size: 0.58rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--red); padding: 0; }
+  .tcard .more:hover { color: var(--fg); }
+  .tcard .tfoot { border-top: 1px solid var(--hairline); padding-top: 1rem; display: flex; flex-direction: column; gap: 0.3rem; }
+  .tcard .tfoot .name { font-family: "Niagara"; text-transform: uppercase; font-size: 1.55rem; line-height: 1; }
+  .tcard .tfoot .role { color: var(--muted); }
+
+  /* ── Contact ──────────────────────────────────────── */
+  .form-sheet { max-width: 44rem; margin: 0 auto; display: flex; flex-direction: column; gap: 2.6rem; }
+  .fgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 2.6rem; }
+  .field label { display: block; margin-bottom: 0.7rem; color: var(--muted); }
+  .field label b { color: var(--muted); font-weight: 400; margin-right: 0.6rem; }
+  .field input, .field textarea { width: 100%; background: none; border: none; border-bottom: 1px solid var(--hairline); padding-bottom: 0.7rem; color: var(--fg); font-family: "Geist"; font-size: 0.95rem; outline: none; resize: none; }
+  .field input:focus, .field textarea:focus { border-color: var(--red); }
+  .field:focus-within label b { color: var(--red); }
+  .transmit { width: 100%; height: 3.2rem; background: var(--red); border: 1px solid var(--red); color: #000; font-family: "GeistMono", monospace; font-size: 0.62rem; letter-spacing: 0.25em; text-transform: uppercase; cursor: pointer; }
+  .transmit:hover { background: var(--fg); border-color: var(--fg); }
+
+  /* ── Footer ───────────────────────────────────────── */
+  footer { position: relative; z-index: 2; border-top: 1px solid var(--hairline); display: flex; align-items: center; justify-content: space-between; padding: 1rem 2.5rem; color: var(--muted); flex-wrap: wrap; gap: 0.8rem; }
+  footer .grp { display: flex; align-items: center; gap: 2.5rem; }
+  footer img { height: 24px; width: auto; display: block; }
+  footer a { color: var(--muted); text-decoration: none; } footer a:hover { color: var(--red); }
+
+  /* ── Mobile ───────────────────────────────────────── */
+  @media (max-width: 860px) {
+    .grid-guides { display: none; }
+    nav { padding: 0 1.25rem; }
+    section.block { padding: 4rem 1.25rem; }
+    .tick.tl, .tick.bl { left: 1.25rem; } .tick.tr, .tick.br { right: 1.25rem; }
+    .hud-left { display: none; }
+    .hud-scroll { right: 1.25rem; bottom: 4rem; }
+    .about-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+    .about-head { font-size: 13vw; }
+    .fgrid { grid-template-columns: 1fr; }
+    .caps-grid { grid-template-columns: 1fr; }
+    .caps-preview { display: none; }               /* desktop preview panel off */
+    .crow.active .crow-body { max-height: 600px; } /* accordion on */
+    .tcards { grid-template-columns: 1fr; }
+    footer { padding: 1rem 1.25rem; }
+    footer .grp { gap: 1.2rem; }
+  }
+  @media (min-width: 861px) {
+    .crow-body { display: none; } /* accordion only on mobile */
+  }
+</style>
+</head>
+<body>
+
+<div class="grid-guides"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
+<nav>
+  <img src="../public/Assets/Brand/B53_Logo.png" alt="B53">
+  <span class="mono muted">/INDEX</span>
+  <div class="nav-right">
+    <span class="mono muted" id="clock">GST 00:00:00</span>
+    <div class="burger"><span class="mono">Menu</span><div class="lines"><span></span><span></span><span></span></div></div>
+  </div>
+</nav>
+
+<!-- ═══ HERO — typography-first, scanline glitch ═══ -->
+<section class="hero">
+  <canvas id="heroCanvas"></canvas>
+  <div class="hud">
+    <span class="tick tl">+</span><span class="tick tr">+</span><span class="tick bl">+</span><span class="tick br">+</span>
+    <div class="hud-top mono">B53 — REAL-TIME / MOTION / UE5</div>
+    <div class="hud-left mono">SHIVA TUNOLY — CREATIVE TECHNOLOGIST</div>
+    <div class="hud-scroll mono"><span>SCROLL</span><div class="col"><i></i><i></i><i></i></div></div>
+  </div>
+  <div class="marquee"><div class="marquee-inner mono" id="marquee"></div></div>
+</section>
+
+<!-- ═══ ABOUT — spec sheet (no location) ═══ -->
+<section class="block">
+  <div class="rule"><div><span class="idx mono">01</span><h2>/ About</h2></div><span class="mono muted">PERSONNEL FILE</span></div>
+  <div class="about-grid">
+    <div>
+      <div class="about-head">Creative Technologist<br><span class="x">×</span>Motion Designer</div>
+      <p class="about-copy">At the intersection of technology and direction. Crafting real-time 3D experiences, interactive visualizations, and motion work that doesn't just function… it feels. From architectural spaces to product worlds, built with the industry standard tools and designed to leave an impression.</p>
+      <div class="data-table mono">
+        <div class="row"><span class="k">Focus /</span><span class="v">UE5 — Real-Time</span></div>
+        <div class="row"><span class="k">Tools /</span><span class="v">Unreal · Blender · AI Pipeline</span></div>
+        <div class="row"><span class="k">Status /</span><span class="v"><span class="dot"></span>Available</span></div>
+      </div>
+    </div>
+    <div class="portrait">
+      <img src="../public/Assets/Misc/ShivaTunoly_shoot.png" alt="Shiva Tunoly">
+      <span class="fig mono">FIG. 01 — S. TUNOLY</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CAPABILITIES — interactive index ═══ -->
+<section class="block">
+  <div class="rule"><div><span class="idx mono">02</span><h2>/ Capabilities</h2></div><span class="mono muted" id="capMeta">CAP 01 / 05</span></div>
+  <div class="caps-grid">
+    <div class="caps-list" id="capsList"></div>
+    <div class="caps-preview" id="capsPreview">
+      <div class="pcap mono"><span id="pTag">CAP 01 — REAL-TIME</span><span id="pRel">REL: B53-AUTO</span></div>
+      <div class="pimg"><img id="pImg" src="../public/ProjectThumbnails/auto1.png" alt=""></div>
+      <div class="pbody">
+        <p id="pSub">Worlds that respond. Environments built to be explored, not just watched.</p>
+        <a href="#" class="mono" id="pLink">Related Work →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TESTIMONIALS — cards ═══ -->
+<section class="block">
+  <div class="rule"><div><span class="idx mono">03</span><h2>/ Testimonials</h2></div><span class="mono muted">3 RECORDS</span></div>
+  <div class="tcards" id="tcards"></div>
+</section>
+
+<!-- ═══ CONTACT — form sheet ═══ -->
+<section class="block">
+  <div class="rule"><div><span class="idx mono">04</span><h2>/ Contact</h2></div><span class="mono muted">RESPONSE &lt; 48H</span></div>
+  <div class="form-sheet">
+    <div class="fgrid">
+      <div class="field"><label class="mono"><b>01</b>Name</label><input type="text" placeholder="Your name"></div>
+      <div class="field"><label class="mono"><b>02</b>Email</label><input type="email" placeholder="your@email.com"></div>
+    </div>
+    <div class="field"><label class="mono"><b>03</b>Company — Optional</label><input type="text" placeholder="Where do you work?"></div>
+    <div class="field"><label class="mono"><b>04</b>Brief</label><textarea rows="4" placeholder="Tell me about your project..."></textarea></div>
+    <button class="transmit">Transmit →</button>
+  </div>
+</section>
+
+<footer class="mono">
+  <div class="grp"><img src="../public/Assets/Brand/B53_Logo.png" alt="B53"><span>B53 — STUDIO</span><span id="clock2">GST 00:00:00</span></div>
+  <div class="grp"><span><span class="dot"></span>STATUS: AVAILABLE</span><span>VER 2.0</span><a href="#">LINKEDIN ↗</a></div>
+</footer>
+
+<script>
+/* ── Live clock ── */
+function tickClock(){
+  const d = new Date(), p = n => String(n).padStart(2,"0");
+  const s = `GST ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+  document.getElementById("clock").textContent = s;
+  document.getElementById("clock2").textContent = s;
+}
+setInterval(tickClock, 1000); tickClock();
+
+/* ── Marquee ── */
+const items = "REAL-TIME INTERACTIVE × 3D VISUALIZATION × MOTION DESIGN × CINEMATIC DIRECTION × ARCHVIZ × ";
+document.getElementById("marquee").innerHTML = `<span>${items.repeat(4)}</span><span>${items.repeat(4)}</span>`;
+
+/* ── HERO: type baked to offscreen canvas, scanline displacement near cursor ── */
+const cv = document.getElementById("heroCanvas"), ctx = cv.getContext("2d");
+const off = document.createElement("canvas"), octx = off.getContext("2d");
+let mouse = { x: -9999, y: -9999 }, vel = 0, last = { x: 0, y: 0 };
+
+/* grain inside glyphs only (source-atop). Real build: shader, per DESIGN-SPEC §2.1 */
+function grainLite(){
+  octx.globalCompositeOperation = "source-atop";
+  for (let i = 0; i < 900; i++) {
+    const x = Math.random()*off.width, y = Math.random()*off.height, a = Math.random()*0.14;
+    octx.fillStyle = Math.random() > 0.5 ? `rgba(0,0,0,${a})` : `rgba(255,255,255,${a})`;
+    octx.fillRect(x, y, 2, 2);
+  }
+  octx.globalCompositeOperation = "source-over";
+}
+function bakeClean(){
+  cv.width = off.width = cv.clientWidth;
+  cv.height = off.height = cv.clientHeight;
+  octx.clearRect(0,0,off.width,off.height);
+  octx.fillStyle = "#0a0a0a"; octx.fillRect(0,0,off.width,off.height);
+
+  const text = "B53";
+  const NAV_H = 64, MARQUEE_H = 42;          // zones to stay clear of
+  const availH = off.height - NAV_H - MARQUEE_H;
+
+  // size by width, then cap so the ink never exceeds 72% of available height
+  let fs = off.width * 0.42;
+  octx.font = `${fs}px Niagara, "Arial Narrow"`;
+  let m = octx.measureText(text);
+  let inkH = m.actualBoundingBoxAscent + m.actualBoundingBoxDescent;
+  if (inkH > availH * 0.72) {
+    fs *= (availH * 0.72) / inkH;
+    octx.font = `${fs}px Niagara, "Arial Narrow"`;
+    m = octx.measureText(text);
+    inkH = m.actualBoundingBoxAscent + m.actualBoundingBoxDescent;
+  }
+
+  // optical centering on actual ink bounds, not advance width
+  const inkW = m.actualBoundingBoxLeft + m.actualBoundingBoxRight;
+  const x = (off.width - inkW) / 2 + m.actualBoundingBoxLeft;
+  const y = NAV_H + (availH - inkH) / 2 + m.actualBoundingBoxAscent;
+
+  // red block behind the "5" — sized from the 5's own ink bounds
+  const wB  = octx.measureText("B").width;
+  const wB5 = octx.measureText("B5").width;
+  const m5  = octx.measureText("5");
+  octx.fillStyle = "#fa3d00";
+  octx.fillRect(x + wB, y - m5.actualBoundingBoxAscent, wB5 - wB, m5.actualBoundingBoxAscent + m5.actualBoundingBoxDescent);
+
+  octx.fillStyle = "#f0f0f0";
+  octx.fillText(text, x, y);
+  grainLite();
+}
+let frameCount = 0;
+function draw(){
+  frameCount++;
+  if (frameCount % 3 === 0) bakeClean(); // ~20fps grain refresh
+  ctx.fillStyle = "#0a0a0a"; ctx.fillRect(0,0,cv.width,cv.height);
+  const slice = 6, str = vel * 90;
+  for (let y = 0; y < cv.height; y += slice) {
+    const dy = Math.abs(y + slice/2 - mouse.y) / cv.height;
+    const prox = Math.exp(-dy * 14);
+    const offset = (Math.random() - 0.5) * str * prox;
+    ctx.drawImage(off, 0, y, cv.width, slice, offset, y, cv.width, slice);
+  }
+  vel *= 0.94;
+  requestAnimationFrame(draw);
+}
+window.addEventListener("mousemove", e => {
+  const r = cv.getBoundingClientRect();
+  const x = e.clientX - r.left, y = e.clientY - r.top;
+  vel = Math.min(vel + Math.hypot(x-last.x, y-last.y) / 60, 1.4);
+  last = { x, y }; mouse = { x, y };
+});
+window.addEventListener("resize", bakeClean);
+if (document.fonts && document.fonts.ready) { document.fonts.ready.then(() => { bakeClean(); draw(); }); }
+else { setTimeout(() => { bakeClean(); draw(); }, 400); }
+
+/* ── Capabilities — interactive index ── */
+const CAPS = [
+  { t: "Real-Time Interactive Experiences", tag: "REAL-TIME", rel: "B53-AUTO",  img: "../public/ProjectThumbnails/auto1.png",  sub: "Worlds that respond. Environments built to be explored, not just watched." },
+  { t: "3D Visualization & Animation",      tag: "3D-VIZ",    rel: "SONY",      img: "../public/ProjectThumbnails/sony1.png",  sub: "Objects, products, and spaces rendered with intention. Every frame considered." },
+  { t: "Motion Design",                     tag: "MOTION",    rel: "DAIF-2025", img: "../public/ProjectThumbnails/daif1.png",  sub: "Ideas in motion. From concept to sequence, designed to move people." },
+  { t: "Cinematic Direction",               tag: "CINEMA",    rel: "URBAN",     img: "../public/ProjectThumbnails/urban1.png", sub: "Lighting, composition, atmosphere. The craft behind every frame." },
+  { t: "Architectural & Spatial Visualization", tag: "ARCHVIZ", rel: "LUEUR",   img: "../public/ProjectThumbnails/leur1.png",  sub: "Spaces brought to life before they're built. Atmosphere included." },
+];
+const capsList = document.getElementById("capsList");
+const isMobile = () => window.innerWidth <= 860;
+
+function setPreview(c, i){
+  document.getElementById("pTag").textContent  = `CAP 0${i+1} — ${c.tag}`;
+  document.getElementById("pRel").textContent  = `REL: ${c.rel}`;
+  document.getElementById("pImg").src          = c.img;
+  document.getElementById("pSub").textContent  = c.sub;
+  document.getElementById("capMeta").textContent = `CAP 0${i+1} / 05`;
+}
+CAPS.forEach((c, i) => {
+  const row = document.createElement("div");
+  row.className = "crow" + (i === 0 ? " active" : "");
+  row.innerHTML = `
+    <div class="crow-head">
+      <span class="cidx">0${i+1}</span>
+      <span class="ctitle">${c.t}</span>
+      <span class="carrow">→</span>
+    </div>
+    <div class="crow-body"><div class="inner">
+      <img src="${c.img}" alt="" loading="lazy">
+      <p>${c.sub}</p>
+      <a href="#" class="mono">Related Work — ${c.rel} →</a>
+    </div></div>`;
+  const activate = () => {
+    capsList.querySelectorAll(".crow").forEach(r => { r.classList.remove("active"); r.querySelector(".crow-body").style.maxHeight = "0"; });
+    row.classList.add("active");
+    if (isMobile()) { const b = row.querySelector(".crow-body"); b.style.maxHeight = b.scrollHeight + "px"; }
+    setPreview(c, i);
+  };
+  row.querySelector(".crow-head").addEventListener("mouseenter", () => { if (!isMobile()) activate(); });
+  row.querySelector(".crow-head").addEventListener("click", () => {
+    if (isMobile() && row.classList.contains("active")) { // toggle closed
+      row.classList.remove("active"); row.querySelector(".crow-body").style.maxHeight = "0"; return;
+    }
+    activate();
+  });
+  capsList.appendChild(row);
+});
+
+/* ── Testimonials — cards ── */
+const T = [
+  ["Sneha Sathe", "Creative Director, Sentient by Elysian",
+   "I worked with Shiva for about two years, and he consistently stood out as a thoughtful and mature creative with a distinct point of view. He is naturally inquisitive—always asking the right questions—and while he's quiet and humble, he's a keen observer who brings depth to his work.",
+   "His approach combines analytical thinking with strong creative instincts, resulting in work that feels both intentional and well-crafted. Once aligned on a clear brief, he is highly reliable and easy to collaborate with.\n\nWhat sets him apart is that his AI skills go beyond just creative applications—he also explores coding, automation, and smarter ways of working, bringing added efficiency and innovation to projects."],
+  ["Christophe Alonso", "Freelance Creative Director",
+   "Shiva is a brilliant 3D Artist and Motion Designer with a natural gift for visual storytelling. Having mentored him early on, I was consistently impressed by his ability to find creative solutions using tools like Unreal Engine and Blender.",
+   "His technical execution, especially with complex nodal workflows, is outstanding. While he is naturally reserved, he is a 'rare find' whose dedication and skill set bring immense value to any creative project. He has a very bright future ahead of him."],
+  ["Noorin Tiatt", "Production Coordinator, Sentient by Elysian",
+   "Working with him has always been a seamless experience. He brings a calm, composed presence to every project, which makes collaboration both efficient and enjoyable. What really stands out is his creative depth and keen artistic eye... he doesn't just execute ideas, he elevates them.",
+   "He's incredibly detail-oriented and won't settle until the work reaches a high standard of perfection, yet he remains grounded in what's realistically achievable within a given timeline. That balance between ambition and practicality is rare."],
+];
+const tcards = document.getElementById("tcards");
+T.forEach((t, i) => {
+  const card = document.createElement("div");
+  card.className = "tcard";
+  card.innerHTML = `
+    <div class="thead mono"><span class="tn">0${i+1}</span><span>RECORD</span></div>
+    <div class="quote"><p>“${t[2]}”</p><div class="rest" style="display:none">${t[3].split("\n\n").map(p => `<p>${p}</p>`).join("")}</div></div>
+    <button class="more mono">+ Read Full</button>
+    <div class="tfoot">
+      <span class="name">${t[0]}</span>
+      <span class="role mono">${t[1]}</span>
+    </div>`;
+  const btn = card.querySelector(".more"), rest = card.querySelector(".rest");
+  btn.onclick = () => {
+    const open = rest.style.display !== "none";
+    rest.style.display = open ? "none" : "block";
+    btn.textContent = open ? "+ Read Full" : "− Collapse";
+  };
+  tcards.appendChild(card);
+});
+</script>
+</body>
+</html>

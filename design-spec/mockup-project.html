@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B53 — Project Page Mockup (Data Sheet)</title>
+<style>
+  @font-face { font-family: "Niagara"; src: url("../app/fonts/NiagaraSolid.ttf"); }
+  @font-face { font-family: "Geist"; src: url("../app/fonts/GeistVF.woff"); }
+  @font-face { font-family: "GeistMono"; src: url("../app/fonts/GeistMonoVF.woff"); }
+  :root { --bg:#0a0a0a; --fg:#f0f0f0; --muted:#888880; --red:#fa3d00; --hairline:rgba(255,255,255,0.12); }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { background:var(--bg); color:var(--fg); font-family:"Geist",sans-serif; }
+  .mono { font-family:"GeistMono",monospace; font-size:0.6rem; letter-spacing:0.18em; text-transform:uppercase; }
+  .muted { color:var(--muted); }
+  .niagara { font-family:"Niagara"; text-transform:uppercase; }
+
+  .grid-guides { position:fixed; inset:0; pointer-events:none; z-index:1; display:grid; grid-template-columns:repeat(12,1fr); padding:0 2.5rem; }
+  .grid-guides span { border-left:1px solid rgba(255,255,255,0.04); }
+
+  nav { position:fixed; top:0; left:0; right:0; z-index:50; height:4rem; display:flex; align-items:center; justify-content:space-between; padding:0 2.5rem; border-bottom:1px solid var(--hairline); background:rgba(10,10,10,0.8); backdrop-filter:blur(8px); }
+  nav img { height:30px; width:auto; display:block; } /* logo is 503×630 — never force square */
+  .burger { display:flex; align-items:center; gap:0.8rem; cursor:pointer; }
+  .burger .lines { display:flex; flex-direction:column; gap:5px; }
+  .burger .lines span { display:block; width:24px; height:1px; background:var(--fg); }
+
+  main { position:relative; z-index:2; padding-top:7rem; }
+  .pad { padding-left:2.5rem; padding-right:2.5rem; }
+
+  /* Spec-table header (title block) */
+  .spec { border-top:1px solid var(--hairline); }
+  .spec .srow { display:grid; grid-template-columns:14rem 1fr; align-items:center; border-bottom:1px solid var(--hairline); padding:1.1rem 0; }
+  .spec .k { color:var(--muted); }
+  .spec .v-title { font-family:"Niagara"; text-transform:uppercase; font-size:clamp(2.4rem,5vw,4rem); line-height:0.9; }
+  .spec .v { font-family:"GeistMono",monospace; font-size:0.7rem; letter-spacing:0.18em; text-transform:uppercase; }
+
+  /* Section label rule */
+  .slabel { display:flex; align-items:center; gap:1.2rem; margin:4.5rem 0 2rem; }
+  .slabel span { color:var(--muted); white-space:nowrap; }
+  .slabel::after { content:""; flex:1; height:1px; background:var(--hairline); }
+
+  .prose { max-width:44rem; display:flex; flex-direction:column; gap:1.3rem; color:var(--muted); font-size:0.95rem; line-height:1.75; }
+  .prose .lede { color:var(--fg); }
+  .prose ul { list-style:none; display:flex; flex-direction:column; gap:0.5rem; }
+  .prose li { display:flex; gap:0.7rem; }
+  .prose li::before { content:"—"; color:var(--red); flex-shrink:0; }
+
+  /* Video block */
+  .vid { margin-top:1rem; }
+  .vid .vcap { display:flex; justify-content:space-between; margin-bottom:0.6rem; color:var(--muted); }
+  .vid .frame { width:100%; aspect-ratio:32/9; background:#000; border:1px solid var(--hairline); display:flex; align-items:center; justify-content:center; color:var(--muted); }
+
+  /* Styleframes with figure captions */
+  .figs { display:grid; grid-template-columns:1fr 1fr; gap:2rem 1.5rem; margin-top:1rem; }
+  .fig img { width:100%; display:block; border:1px solid rgba(255,255,255,0.06); }
+  .fig .fcap { display:flex; justify-content:space-between; margin-top:0.5rem; color:var(--muted); }
+  .fig .fcap b { font-weight:400; color:var(--red); }
+
+  /* Prev / Next */
+  .pn { display:grid; grid-template-columns:1fr 1fr; border-top:1px solid var(--hairline); margin-top:5rem; }
+  .pn a { display:flex; flex-direction:column; gap:0.8rem; padding:3rem 2.5rem; text-decoration:none; color:var(--fg); }
+  .pn a + a { border-left:1px solid var(--hairline); text-align:right; align-items:flex-end; }
+  .pn .lbl { color:var(--muted); }
+  .pn .nm { font-family:"Niagara"; text-transform:uppercase; font-size:clamp(1.8rem,3.5vw,3rem); line-height:0.9; }
+  .pn a:hover .nm, .pn a:hover .lbl { color:var(--red); }
+
+  footer { border-top:1px solid var(--hairline); display:flex; align-items:center; justify-content:space-between; padding:1rem 2.5rem; color:var(--muted); position:relative; z-index:2; }
+  footer .grp { display:flex; align-items:center; gap:2.5rem; }
+  footer img { height:24px; width:auto; display:block; }
+  .dot { display:inline-block; width:6px; height:6px; background:var(--red); margin-right:0.5rem; }
+
+  @media (max-width:860px) {
+    .grid-guides { display:none; }
+    .spec .srow { grid-template-columns:8rem 1fr; }
+    .figs { grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="grid-guides"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
+<nav>
+  <img src="../public/Assets/Brand/B53_Logo.png" alt="B53">
+  <span class="mono muted">/WORK/DAIF-2025</span>
+  <div class="burger"><span class="mono">Menu</span><div class="lines"><span></span><span></span><span></span></div></div>
+</nav>
+
+<main>
+  <!-- Title block — technical drawing style -->
+  <div class="pad spec">
+    <div class="srow"><span class="k mono">Project /</span><span class="v-title">Dubai AI Festival</span></div>
+    <div class="srow"><span class="k mono">Year /</span><span class="v">2025</span></div>
+    <div class="srow"><span class="k mono">Category /</span><span class="v">Client</span></div>
+    <div class="srow"><span class="k mono">Index /</span><span class="v">04 · 09</span></div>
+    <div class="srow"><span class="k mono">Format /</span><span class="v">6400 × 1300 — Ultra-wide stage</span></div>
+  </div>
+
+  <div class="pad">
+    <div class="slabel"><span class="mono">Synopsis</span></div>
+    <div class="prose">
+      <p class="lede">Created while working at Sentient by Elysian, this project was commissioned as the main stage opening video for the Dubai AI Festival 2025.</p>
+      <p>The challenge was both ambitious and time-critical: producing a fully CG, large-scale film within just 12 days, tailored for an ultra-wide stage format of 6400 × 1300 pixels.</p>
+      <p>Conceptually, the film explores the metaphor of the "black box mind" of artificial intelligence—a space where thoughts form, collide, and evolve.</p>
+      <ul>
+        <li>Fully CG production in 12 days</li>
+        <li>Ultra-wide 6400 × 1300 stage format</li>
+        <li>Abstract visual storytelling — past, present, future of AI</li>
+      </ul>
+    </div>
+
+    <div class="slabel"><span class="mono">Film</span></div>
+    <div class="vid">
+      <div class="vcap mono"><span>VID. 01 — Main film</span><span>6400 × 1300</span></div>
+      <div class="frame mono">[ VIMEO EMBED — unchanged ]</div>
+    </div>
+
+    <div class="slabel"><span class="mono">Styleframes</span></div>
+    <div class="figs">
+      <div class="fig">
+        <img src="../public/Projects/dubai-ai-festival/05587f233410695.68af069b96d03.png" alt="">
+        <div class="fcap mono"><span><b>FIG. 01</b></span><span>3201 × 789</span></div>
+      </div>
+      <div class="fig">
+        <img src="../public/Projects/dubai-ai-festival/9a6d5b233410695.68af069b998da.png" alt="">
+        <div class="fcap mono"><span><b>FIG. 02</b></span><span>3201 × 806</span></div>
+      </div>
+      <div class="fig">
+        <img src="../public/Projects/dubai-ai-festival/37009f233410695.68af069b97767.png" alt="">
+        <div class="fcap mono"><span><b>FIG. 03</b></span><span>3201 × 800</span></div>
+      </div>
+      <div class="fig">
+        <img src="../public/Projects/dubai-ai-festival/20441c233410695.68af069b9fd76.png" alt="">
+        <div class="fcap mono"><span><b>FIG. 04</b></span><span>3201 × 786</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Prev / Next -->
+  <div class="pn">
+    <a href="#"><span class="lbl mono">← Prev</span><span class="nm">Lueur</span></a>
+    <a href="#"><span class="lbl mono">Next →</span><span class="nm">Sony</span></a>
+  </div>
+</main>
+
+<footer class="mono">
+  <div class="grp"><img src="../public/Assets/Brand/B53_Logo.png" alt="B53"><span>B53 — STUDIO</span></div>
+  <div class="grp"><span><span class="dot"></span>STATUS: AVAILABLE</span><span>VER 2.0</span></div>
+</footer>
+
+</body>
+</html>

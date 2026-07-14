@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B53 — Contact + Menu Mockup</title>
+<style>
+  @font-face { font-family: "Niagara"; src: url("../app/fonts/NiagaraSolid.ttf"); }
+  @font-face { font-family: "Geist"; src: url("../app/fonts/GeistVF.woff"); }
+  @font-face { font-family: "GeistMono"; src: url("../app/fonts/GeistMonoVF.woff"); }
+  :root { --bg:#0a0a0a; --fg:#f0f0f0; --muted:#888880; --red:#fa3d00; --hairline:rgba(255,255,255,0.12); }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { background:var(--bg); color:var(--fg); font-family:"Geist",sans-serif; }
+  .mono { font-family:"GeistMono",monospace; font-size:0.6rem; letter-spacing:0.18em; text-transform:uppercase; }
+  .muted { color:var(--muted); }
+
+  .grid-guides { position:fixed; inset:0; pointer-events:none; z-index:1; display:grid; grid-template-columns:repeat(12,1fr); padding:0 2.5rem; }
+  .grid-guides span { border-left:1px solid rgba(255,255,255,0.04); }
+
+  nav { position:fixed; top:0; left:0; right:0; z-index:50; height:4rem; display:flex; align-items:center; justify-content:space-between; padding:0 2.5rem; border-bottom:1px solid var(--hairline); background:rgba(10,10,10,0.8); backdrop-filter:blur(8px); }
+  nav img { height:30px; width:auto; display:block; }
+  .burger { display:flex; align-items:center; gap:0.8rem; cursor:pointer; }
+  .burger .lines { display:flex; flex-direction:column; gap:5px; }
+  .burger .lines span { display:block; width:24px; height:1px; background:var(--fg); }
+
+  main { position:relative; z-index:2; padding:8rem 2.5rem 4rem; }
+
+  /* ── Header ── */
+  .head { display:flex; align-items:flex-end; justify-content:space-between; border-bottom:1px solid var(--hairline); padding-bottom:1rem; }
+  .head h1 { font-family:"Niagara"; text-transform:uppercase; font-size:clamp(4rem,11vw,11rem); line-height:0.85; font-weight:400; }
+  .head .meta { text-align:right; color:var(--muted); display:flex; flex-direction:column; gap:0.5rem; padding-bottom:0.8rem; }
+
+  /* ── LinkedIn buttons — hairline, red on hover ── */
+  .links { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin:2.5rem 0 0; }
+  .lbtn { display:flex; align-items:center; justify-content:space-between; border:1px solid var(--hairline); padding:1.4rem 1.6rem; text-decoration:none; color:var(--fg); }
+  .lbtn .l { display:flex; flex-direction:column; gap:0.35rem; }
+  .lbtn .sub { color:var(--muted); }
+  .lbtn .name { font-family:"Niagara"; text-transform:uppercase; font-size:1.7rem; line-height:1; }
+  .lbtn .ext { font-family:"GeistMono",monospace; color:var(--muted); font-size:0.9rem; }
+  .lbtn:hover { background:var(--red); border-color:var(--red); color:#000; }
+  .lbtn:hover .sub, .lbtn:hover .ext { color:rgba(0,0,0,0.6); }
+
+  /* ── Form sheet ── */
+  .form-wrap { margin-top:4.5rem; }
+  .rule { display:flex; align-items:baseline; justify-content:space-between; border-bottom:1px solid var(--hairline); padding-bottom:0.8rem; margin-bottom:3rem; }
+  .rule .idx { color:var(--red); margin-right:1rem; }
+  .form-sheet { max-width:44rem; margin:0 auto; display:flex; flex-direction:column; gap:2.6rem; }
+  .fgrid { display:grid; grid-template-columns:1fr 1fr; gap:2.6rem; }
+  .field label { display:block; margin-bottom:0.7rem; color:var(--muted); }
+  .field label b { color:var(--muted); font-weight:400; margin-right:0.6rem; }
+  .field input, .field textarea { width:100%; background:none; border:none; border-bottom:1px solid var(--hairline); padding-bottom:0.7rem; color:var(--fg); font-family:"Geist"; font-size:0.95rem; outline:none; resize:none; }
+  .field input:focus, .field textarea:focus { border-color:var(--red); }
+  .field:focus-within label b { color:var(--red); }
+  .transmit { width:100%; height:3.2rem; background:var(--red); border:1px solid var(--red); color:#000; font-family:"GeistMono",monospace; font-size:0.62rem; letter-spacing:0.25em; text-transform:uppercase; cursor:pointer; }
+  .transmit:hover { background:var(--fg); border-color:var(--fg); }
+
+  footer { position:relative; z-index:2; border-top:1px solid var(--hairline); display:flex; align-items:center; justify-content:space-between; padding:1rem 2.5rem; color:var(--muted); flex-wrap:wrap; gap:0.8rem; }
+  footer .grp { display:flex; align-items:center; gap:2.5rem; }
+  footer img { height:24px; width:auto; display:block; }
+  footer a { color:var(--muted); text-decoration:none; } footer a:hover { color:var(--red); }
+  .dot { display:inline-block; width:6px; height:6px; background:var(--red); margin-right:0.5rem; animation:blink 2s infinite; }
+  @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0.25; } }
+
+  /* ══ MENU OVERLAY — index sheet ══ */
+  .menu { position:fixed; inset:0; z-index:100; background:var(--bg); display:none; flex-direction:column; }
+  .menu.open { display:flex; }
+  .menu-top { height:4rem; display:flex; align-items:center; justify-content:space-between; padding:0 2.5rem; border-bottom:1px solid var(--hairline); flex-shrink:0; }
+  .menu-top img { height:30px; width:auto; display:block; }
+  .menu-close { background:none; border:none; cursor:pointer; font-family:"GeistMono",monospace; font-size:0.6rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--red); display:flex; align-items:center; gap:0.7rem; }
+  .menu-close .x { font-size:1.4rem; line-height:1; }
+  .menu-rows { flex:1; display:flex; flex-direction:column; }
+  .mrow { flex:1; display:grid; grid-template-columns:6rem 1fr auto; align-items:center; padding:0 2.5rem; border-bottom:1px solid var(--hairline); text-decoration:none; color:var(--fg); overflow:hidden;
+    clip-path:inset(100% 0 0 0); }
+  .menu.open .mrow { animation:rowIn 0.5s cubic-bezier(0.76,0,0.24,1) forwards; }
+  .menu.open .mrow:nth-child(1) { animation-delay:0.05s; }
+  .menu.open .mrow:nth-child(2) { animation-delay:0.11s; }
+  .menu.open .mrow:nth-child(3) { animation-delay:0.17s; }
+  @keyframes rowIn { from { clip-path:inset(100% 0 0 0); } to { clip-path:inset(0 0 0 0); } }
+  .mrow .midx { font-family:"GeistMono",monospace; font-size:0.65rem; letter-spacing:0.18em; color:var(--muted); }
+  .mrow .mlabel { font-family:"Niagara"; text-transform:uppercase; font-size:clamp(3.5rem,10vw,9rem); line-height:0.85; }
+  .mrow .mmeta { font-family:"GeistMono",monospace; font-size:0.6rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--muted); display:flex; align-items:center; gap:0.8rem; }
+  .mrow:hover { background:var(--red); color:#000; }
+  .mrow:hover .midx, .mrow:hover .mmeta { color:rgba(0,0,0,0.6); }
+  .mrow.active .midx { color:var(--red); }
+  .mrow.active .mmeta::after { content:"●"; color:var(--red); font-size:0.5rem; }
+  .mrow.active:hover .midx { color:rgba(0,0,0,0.6); }
+  .mrow.active:hover .mmeta::after { color:#000; }
+  .menu-foot { display:flex; align-items:center; justify-content:space-between; padding:1rem 2.5rem; color:var(--muted); flex-shrink:0; }
+
+  @media (max-width:860px) {
+    .grid-guides { display:none; }
+    nav, footer, .menu-top, .menu-foot { padding-left:1.25rem; padding-right:1.25rem; }
+    main { padding:6.5rem 1.25rem 3rem; }
+    .head { flex-direction:column; align-items:flex-start; gap:1rem; }
+    .head .meta { text-align:left; flex-direction:row; gap:1.5rem; }
+    .links { grid-template-columns:1fr; }
+    .fgrid { grid-template-columns:1fr; }
+    .mrow { padding:0 1.25rem; grid-template-columns:3rem 1fr auto; }
+    .mrow .mmeta span.lbl { display:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="grid-guides"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
+<nav>
+  <img src="../public/Assets/Brand/B53_Logo.png" alt="B53">
+  <span class="mono muted">/CONTACT</span>
+  <div class="burger" id="openMenu"><span class="mono">Menu</span><div class="lines"><span></span><span></span><span></span></div></div>
+</nav>
+
+<main>
+  <div class="head">
+    <h1>Start a Project</h1>
+    <div class="meta mono"><span>RESPONSE &lt; 48H</span><span id="clockH">GST 00:00:00</span></div>
+  </div>
+
+  <!-- LinkedIn — hairline, red invert on hover -->
+  <div class="links">
+    <a class="lbtn" href="#" target="_blank">
+      <span class="l"><span class="sub mono">Company</span><span class="name">B53 Studios</span></span>
+      <span class="ext">↗</span>
+    </a>
+    <a class="lbtn" href="#" target="_blank">
+      <span class="l"><span class="sub mono">Personal</span><span class="name">Shiva Tunoly</span></span>
+      <span class="ext">↗</span>
+    </a>
+  </div>
+
+  <!-- Form sheet -->
+  <div class="form-wrap">
+    <div class="rule"><div><span class="idx mono">01</span><span class="mono">/ Brief</span></div><span class="mono muted">ALL FIELDS ENCRYPTED IN TRANSIT</span></div>
+    <div class="form-sheet">
+      <div class="fgrid">
+        <div class="field"><label class="mono"><b>01</b>Name</label><input type="text" placeholder="Your name"></div>
+        <div class="field"><label class="mono"><b>02</b>Email</label><input type="email" placeholder="your@email.com"></div>
+      </div>
+      <div class="field"><label class="mono"><b>03</b>Company — Optional</label><input type="text" placeholder="Where do you work?"></div>
+      <div class="field"><label class="mono"><b>04</b>Brief</label><textarea rows="4" placeholder="Tell me about your project..."></textarea></div>
+      <button class="transmit">Transmit →</button>
+    </div>
+  </div>
+</main>
+
+<footer class="mono">
+  <div class="grp"><img src="../public/Assets/Brand/B53_Logo.png" alt="B53"><span>B53 — STUDIO</span><span id="clockF">GST 00:00:00</span></div>
+  <div class="grp"><span><span class="dot"></span>STATUS: AVAILABLE</span><span>VER 2.0</span><a href="#">LINKEDIN ↗</a></div>
+</footer>
+
+<!-- ══ MENU OVERLAY ══ -->
+<div class="menu" id="menu">
+  <div class="menu-top">
+    <img src="../public/Assets/Brand/B53_Logo.png" alt="B53">
+    <button class="menu-close" id="closeMenu"><span>Close</span><span class="x">×</span></button>
+  </div>
+  <div class="menu-rows">
+    <a class="mrow" href="#">
+      <span class="midx">01</span>
+      <span class="mlabel">Home</span>
+      <span class="mmeta"><span class="lbl">Index</span></span>
+    </a>
+    <a class="mrow" href="#">
+      <span class="midx">02</span>
+      <span class="mlabel">Work</span>
+      <span class="mmeta"><span class="lbl">9 Projects</span></span>
+    </a>
+    <a class="mrow active" href="#">
+      <span class="midx">03</span>
+      <span class="mlabel">Contact</span>
+      <span class="mmeta"><span class="lbl">Form</span></span>
+    </a>
+  </div>
+  <div class="menu-foot mono">
+    <span>B53 — STUDIO</span>
+    <span id="clockM">GST 00:00:00</span>
+    <span><span class="dot"></span>AVAILABLE</span>
+  </div>
+</div>
+
+<script>
+function tickClock(){
+  const d = new Date(), p = n => String(n).padStart(2,"0");
+  const s = `GST ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+  ["clockH","clockF","clockM"].forEach(id => document.getElementById(id).textContent = s);
+}
+setInterval(tickClock, 1000); tickClock();
+
+const menu = document.getElementById("menu");
+document.getElementById("openMenu").onclick = () => {
+  menu.classList.remove("open");
+  void menu.offsetWidth;          // restart row animations
+  menu.classList.add("open");
+};
+document.getElementById("closeMenu").onclick = () => menu.classList.remove("open");
+document.addEventListener("keydown", e => { if (e.key === "Escape") menu.classList.remove("open"); });
+</script>
+</body>
+</html>

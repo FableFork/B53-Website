@@ -6,6 +6,8 @@
   --background: #0a0a0a;
   --foreground: #f0f0f0;
   --accent: #888880;
+  --red: #fa3d00;
+  --hairline: rgba(255, 255, 255, 0.12);
 }
 
 * {
@@ -26,4 +28,30 @@ body {
 }
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+/* Mono HUD/meta text — the system voice */
+.mono-label {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* Blinking status dot */
+.status-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: var(--red);
+  margin-right: 0.5rem;
+  animation: b53-blink 2s infinite;
+}
+@keyframes b53-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .status-dot { animation: none; }
 }

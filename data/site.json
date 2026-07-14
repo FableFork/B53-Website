@@ -1,0 +1,107 @@
+{
+  "hero": {
+    "wordmark": "B53",
+    "hudTop": "B53 — REAL-TIME / MOTION / UE5",
+    "hudLeft": "SHIVA TUNOLY — CREATIVE TECHNOLOGIST",
+    "marquee": [
+      "REAL-TIME INTERACTIVE",
+      "3D VISUALIZATION",
+      "MOTION DESIGN",
+      "CINEMATIC DIRECTION",
+      "ARCHVIZ"
+    ]
+  },
+  "about": {
+    "sectionMeta": "PERSONNEL FILE",
+    "headingLine1": "Creative Technologist",
+    "headingLine2": "Motion Designer",
+    "paragraph": "At the intersection of technology and direction. Crafting real-time 3D experiences, interactive visualizations, and motion work that doesn't just function… it feels. From architectural spaces to product worlds, built with the industry standard tools and designed to leave an impression.",
+    "portrait": "/Assets/Misc/ShivaTunoly_shoot.png",
+    "portraitCaption": "FIG. 01 — S. TUNOLY",
+    "dataRows": [
+      { "key": "Focus", "value": "UE5 — Real-Time" },
+      { "key": "Tools", "value": "Unreal · Blender · AI Pipeline" }
+    ],
+    "statusRow": true
+  },
+  "capabilities": [
+    {
+      "tag": "REAL-TIME",
+      "title": "Real-Time Interactive Experiences",
+      "sub": "Worlds that respond. Environments built to be explored, not just watched.",
+      "relSlug": "b53-auto",
+      "relLabel": "B53-AUTO",
+      "image": "/ProjectThumbnails/auto1.png"
+    },
+    {
+      "tag": "3D-VIZ",
+      "title": "3D Visualization & Animation",
+      "sub": "Objects, products, and spaces rendered with intention. Every frame considered.",
+      "relSlug": "sony",
+      "relLabel": "SONY",
+      "image": "/ProjectThumbnails/sony1.png"
+    },
+    {
+      "tag": "MOTION",
+      "title": "Motion Design",
+      "sub": "Ideas in motion. From concept to sequence, designed to move people.",
+      "relSlug": "daif-2025",
+      "relLabel": "DAIF-2025",
+      "image": "/ProjectThumbnails/daif1.png"
+    },
+    {
+      "tag": "CINEMA",
+      "title": "Cinematic Direction",
+      "sub": "Lighting, composition, atmosphere. The craft behind every frame.",
+      "relSlug": "urban",
+      "relLabel": "URBAN",
+      "image": "/ProjectThumbnails/urban1.png"
+    },
+    {
+      "tag": "ARCHVIZ",
+      "title": "Architectural & Spatial Visualization",
+      "sub": "Spaces brought to life before they're built. Atmosphere included.",
+      "relSlug": "lueur",
+      "relLabel": "LUEUR",
+      "image": "/ProjectThumbnails/leur1.png"
+    }
+  ],
+  "testimonials": [
+    {
+      "id": "t1",
+      "name": "Sneha Sathe",
+      "position": "Creative Director, Sentient by Elysian",
+      "preview": "I worked with Shiva for about two years, and he consistently stood out as a thoughtful and mature creative with a distinct point of view. He is naturally inquisitive—always asking the right questions—and while he's quiet and humble, he's a keen observer who brings depth to his work.",
+      "review": "I worked with Shiva for about two years, and he consistently stood out as a thoughtful and mature creative with a distinct point of view. He is naturally inquisitive—always asking the right questions—and while he's quiet and humble, he's a keen observer who brings depth to his work.\n\nHis approach combines analytical thinking with strong creative instincts, resulting in work that feels both intentional and well-crafted. Once aligned on a clear brief, he is highly reliable and easy to collaborate with.\n\nWhat sets him apart is that his AI skills go beyond just creative applications—he also explores coding, automation, and smarter ways of working, bringing added efficiency and innovation to projects.\n\nAcross projects, he consistently demonstrates strong planning, attention to detail, and a willingness to experiment while maintaining quality. He brings a calm, trustworthy presence and has the qualities of someone ready to lead and guide a team. I would confidently recommend Shiva as a valuable creative partner."
+    },
+    {
+      "id": "t2",
+      "name": "Christophe Alonso",
+      "position": "Freelance Creative Director",
+      "preview": "Shiva is a brilliant 3D Artist and Motion Designer with a natural gift for visual storytelling. Having mentored him early on, I was consistently impressed by his ability to find creative solutions using tools like Unreal Engine and Blender.",
+      "review": "Shiva is a brilliant 3D Artist and Motion Designer with a natural gift for visual storytelling. Having mentored him early on, I was consistently impressed by his ability to find creative solutions using tools like Unreal Engine and Blender. His technical execution, especially with complex nodal workflows, is outstanding. While he is naturally reserved, he is a 'rare find' whose dedication and skill set bring immense value to any creative project. He has a very bright future ahead of him."
+    },
+    {
+      "id": "t4",
+      "name": "Noorin Tiatt",
+      "position": "Production Coordinator, Sentient by Elysian",
+      "preview": "Working with him has always been a seamless experience. He brings a calm, composed presence to every project, which makes collaboration both efficient and enjoyable. What really stands out is his creative depth and keen artistic eye... he doesn't just execute ideas, he elevates them.",
+      "review": "Working with him has always been a seamless experience. He brings a calm, composed presence to every project, which makes collaboration both efficient and enjoyable. What really stands out is his creative depth and keen artistic eye... he doesn't just execute ideas, he elevates them.\n\nHe's incredibly detail-oriented and won't settle until the work reaches a high standard of perfection, yet he remains grounded in what's realistically achievable within a given timeline. That balance between ambition and practicality is rare, and it consistently results in work that is both thoughtful and well-executed.\n\nOverall, he's someone you can rely on to push creative boundaries while still delivering on time."
+    }
+  ],
+  "contact": {
+    "responseLine": "RESPONSE < 48H",
+    "links": [
+      { "label": "B53 Studios", "sub": "Company", "href": "https://www.linkedin.com/company/b53-studios" },
+      { "label": "Shiva Tunoly", "sub": "Personal", "href": "https://www.linkedin.com/in/shiva-tunoly" }
+    ]
+  },
+  "footer": {
+    "studioLine": "B53 — STUDIO",
+    "status": "AVAILABLE",
+    "version": "VER 2.0",
+    "links": [
+      { "label": "LINKEDIN", "href": "https://www.linkedin.com/company/b53-studios" }
+    ]
+  }
+}

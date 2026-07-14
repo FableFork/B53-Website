@@ -2,6 +2,7 @@ import { projects, StyleframeEntry, VideoEntry, FeatureSection } from "@/data/pr
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import RequestDemoModal from "@/components/RequestDemoModal";
+import TransitionLink from "@/components/TransitionLink";
 import type { Metadata } from "next";
 
 export function generateStaticParams() {
@@ -14,34 +15,39 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   };
 }
 
-// ─── Section label (matches header style) ──────────────────────────────────
+// ─── Section label — mono rule ───────────────────────────────────────────────
 
-function SectionLabel({ label, align = "center" }: { label: string; align?: "center" | "left" }) {
+function SectionLabel({ label }: { label: string }) {
   return (
-    <div className={`flex flex-col gap-3 mb-8 ${align === "left" ? "items-start" : "items-center"}`}>
-      <span className="font-geist text-[#888880] uppercase tracking-widest" style={{ fontSize: "0.6rem" }}>
-        {label}
-      </span>
-      <div className="w-4 h-px bg-white/20" />
+    <div className="flex items-center gap-5 mb-8">
+      <span className="mono-label text-muted whitespace-nowrap">{label}</span>
+      <div className="flex-1 h-px bg-hairline" />
     </div>
   );
 }
 
-// ─── Video block ────────────────────────────────────────────────────────────
+// ─── Video block (embed logic unchanged from v1) ─────────────────────────────
 
-function VideoBlock({ video }: { video: VideoEntry }) {
+function VideoBlock({ video, caption }: { video: VideoEntry; caption?: string }) {
   if (video.type === "vimeo") {
     const padding = video.paddingPercent ?? "56.25%";
     return (
-      <div style={{ padding: `${padding} 0 0 0`, position: "relative" }}>
-        <iframe
-          src={`https://player.vimeo.com/video/${video.id}?badge=0&autopause=0&player_id=0&app_id=58479&title=0&byline=0&portrait=0&like=0&share=0`}
-          frameBorder={0}
-          allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
-          referrerPolicy="strict-origin-when-cross-origin"
-          style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
-          allowFullScreen
-        />
+      <div>
+        {caption && (
+          <div className="flex justify-between px-5 md:px-0 mb-2">
+            <span className="mono-label text-muted">{caption}</span>
+          </div>
+        )}
+        <div style={{ padding: `${padding} 0 0 0`, position: "relative" }}>
+          <iframe
+            src={`https://player.vimeo.com/video/${video.id}?badge=0&autopause=0&player_id=0&app_id=58479&title=0&byline=0&portrait=0&like=0&share=0`}
+            frameBorder={0}
+            allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
+            referrerPolicy="strict-origin-when-cross-origin"
+            style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
+            allowFullScreen
+          />
+        </div>
       </div>
     );
   }
@@ -55,25 +61,31 @@ function VideoBlock({ video }: { video: VideoEntry }) {
   );
 }
 
-// ─── Styleframes gallery ────────────────────────────────────────────────────
-// Landscape images (wider than tall) → full width, stacked
-// Square / portrait images → 3-col grid (2-col on mobile)
+// ─── Styleframes gallery — square corners + FIG captions ─────────────────────
+
+function Frame({ f, index, sizes }: { f: StyleframeEntry; index: number; sizes: string }) {
+  return (
+    <div style={{ breakInside: "avoid" }}>
+      <div
+        className="relative w-full overflow-hidden border border-white/[0.06]"
+        style={{ aspectRatio: `${f.width} / ${f.height}` }}
+      >
+        <Image src={f.src} alt="" fill sizes={sizes} className="object-cover" />
+      </div>
+      <div className="flex justify-between pt-2">
+        <span className="mono-label text-brand">FIG. {String(index + 1).padStart(2, "0")}</span>
+        <span className="mono-label text-muted">{f.width} × {f.height}</span>
+      </div>
+    </div>
+  );
+}
 
 function StyleframesGallery({ frames, layout = "auto" }: { frames: StyleframeEntry[]; layout?: "auto" | "grid" }) {
   if (layout === "grid") {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-8">
         {frames.map((f, i) => (
-          <div key={i} className="relative w-full overflow-hidden rounded-xl"
-            style={{ aspectRatio: `${f.width} / ${f.height}` }}>
-            <Image
-              src={f.src}
-              alt=""
-              fill
-              sizes="(max-width: 768px) 100vw, 50vw"
-              className="object-cover"
-            />
-          </div>
+          <Frame key={i} f={f} index={i} sizes="(max-width: 768px) 100vw, 50vw" />
         ))}
       </div>
     );
@@ -83,32 +95,14 @@ function StyleframesGallery({ frames, layout = "auto" }: { frames: StyleframeEnt
   const square    = frames.filter(f => f.width <= f.height);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-8">
       {landscape.map((f, i) => (
-        <div key={i} className="relative w-full overflow-hidden rounded-xl"
-          style={{ aspectRatio: `${f.width} / ${f.height}` }}>
-          <Image
-            src={f.src}
-            alt=""
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1400px"
-            className="object-cover"
-          />
-        </div>
+        <Frame key={i} f={f} index={i} sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1400px" />
       ))}
       {square.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-8">
           {square.map((f, i) => (
-            <div key={i} className="relative w-full overflow-hidden rounded-xl"
-              style={{ aspectRatio: `${f.width} / ${f.height}` }}>
-              <Image
-                src={f.src}
-                alt=""
-                fill
-                sizes="(max-width: 768px) 50vw, 33vw"
-                className="object-cover"
-              />
-            </div>
+            <Frame key={i} f={f} index={landscape.length + i} sizes="(max-width: 768px) 50vw, 33vw" />
           ))}
         </div>
       )}
@@ -120,7 +114,7 @@ function StyleframesGallery({ frames, layout = "auto" }: { frames: StyleframeEnt
 
 function SynopsisBody({ text, centered }: { text: string; centered?: boolean }) {
   return (
-    <div className={`max-w-3xl mx-auto flex flex-col gap-6 ${centered ? "items-center text-center" : ""}`}>
+    <div className={`max-w-3xl flex flex-col gap-6 ${centered ? "mx-auto items-center text-center" : ""}`}>
       {text.split("\n\n").map((block, i) => {
         const lines = block.split("\n");
         const hasBullets = lines.some(l => l.startsWith("- "));
@@ -136,8 +130,8 @@ function SynopsisBody({ text, centered }: { text: string; centered?: boolean }) 
               )}
               <ul className="flex flex-col gap-1.5">
                 {items.filter(l => l.startsWith("- ")).map((item, j) => (
-                  <li key={j} className="font-geist text-[#888880] leading-relaxed flex gap-2" style={{ fontSize: "0.9rem" }}>
-                    <span className="text-[#fa3d00] shrink-0">—</span>
+                  <li key={j} className="font-geist text-muted leading-relaxed flex gap-2" style={{ fontSize: "0.9rem" }}>
+                    <span className="text-brand shrink-0">—</span>
                     <span>{item.replace(/^-\s*/, "")}</span>
                   </li>
                 ))}
@@ -146,7 +140,7 @@ function SynopsisBody({ text, centered }: { text: string; centered?: boolean }) 
           );
         }
         return (
-          <p key={i} className="font-geist text-[#888880] leading-relaxed" style={{ fontSize: "0.95rem" }}>
+          <p key={i} className={`font-geist leading-relaxed ${i === 0 ? "text-[#f0f0f0]" : "text-muted"}`} style={{ fontSize: "0.95rem" }}>
             {block}
           </p>
         );
@@ -155,18 +149,31 @@ function SynopsisBody({ text, centered }: { text: string; centered?: boolean }) 
   );
 }
 
-// ─── Interactive demo content ────────────────────────────────────────────────
+// ─── Feature item ────────────────────────────────────────────────────────────
 
-function FeatureItem({ section }: { section: FeatureSection }) {
+function FeatureItem({ section, index }: { section: FeatureSection; index: number }) {
   return (
-    <div className="flex flex-col gap-3 border-t border-white/8 pt-8">
-      <h3 className="font-geist text-[#fa3d00]"
-        style={{ fontSize: "clamp(1rem, 1.5vw, 1.15rem)", fontWeight: 500 }}>
-        {section.title}
-      </h3>
-      <p className="font-geist text-[#888880] leading-relaxed max-w-2xl" style={{ fontSize: "0.95rem" }}>
+    <div className="flex flex-col gap-3 border-t border-hairline pt-8">
+      <div className="flex items-baseline gap-4">
+        <span className="mono-label text-muted">F.0{index + 1}</span>
+        <h3 className="font-geist text-brand" style={{ fontSize: "clamp(1rem, 1.5vw, 1.15rem)", fontWeight: 500 }}>
+          {section.title}
+        </h3>
+      </div>
+      <p className="font-geist text-muted leading-relaxed max-w-2xl" style={{ fontSize: "0.95rem" }}>
         {section.body}
       </p>
+    </div>
+  );
+}
+
+// ─── Spec-table header row ──────────────────────────────────────────────────
+
+function SpecRow({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="grid grid-cols-[7rem_1fr] md:grid-cols-[14rem_1fr] items-center border-b border-hairline py-4">
+      <span className="mono-label text-muted">{label} /</span>
+      {children}
     </div>
   );
 }
@@ -174,77 +181,48 @@ function FeatureItem({ section }: { section: FeatureSection }) {
 // ─── Page ───────────────────────────────────────────────────────────────────
 
 export default function ProjectPage({ params }: { params: { slug: string } }) {
-  const project = projects.find((p) => p.slug === params.slug);
-  if (!project) notFound();
+  const idx = projects.findIndex((p) => p.slug === params.slug);
+  if (idx === -1) notFound();
+  const project = projects[idx];
+
+  const prev = projects[(idx - 1 + projects.length) % projects.length];
+  const next = projects[(idx + 1) % projects.length];
 
   return (
-    <main className="min-h-screen bg-[#0a0a0a]">
-      {/* 3-column header */}
-      <section className="px-6 md:px-16 lg:px-24 pt-28 pb-12 md:pt-32 md:pb-16 border-b border-white/8">
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-8 md:gap-6">
-
-          {/* Project */}
-          <div className="flex flex-col items-center gap-3 col-span-2 md:col-span-1">
-            <span className="font-geist text-[#888880] uppercase tracking-widest" style={{ fontSize: "0.6rem" }}>
-              Project
-            </span>
-            <div className="w-4 h-px bg-white/20" />
-            <h1 className="font-niagara text-[#f0f0f0] uppercase leading-none text-center"
-              style={{ fontSize: "clamp(1.8rem, 3.5vw, 3rem)" }}>
-              {project.title}
-            </h1>
-          </div>
-
-          {/* Year */}
-          <div className="flex flex-col items-center gap-3">
-            <span className="font-geist text-[#888880] uppercase tracking-widest" style={{ fontSize: "0.6rem" }}>
-              Year
-            </span>
-            <div className="w-4 h-px bg-white/20" />
-            <span className="font-niagara text-[#f0f0f0] uppercase leading-none"
-              style={{ fontSize: "clamp(1.8rem, 3.5vw, 3rem)" }}>
-              {project.year || "—"}
-            </span>
-          </div>
-
-          {/* Category / Client */}
-          <div className="flex flex-col items-center gap-3">
-            <span className="font-geist text-[#888880] uppercase tracking-widest" style={{ fontSize: "0.6rem" }}>
-              Category
-            </span>
-            <div className="w-4 h-px bg-white/20" />
-            <div className="flex flex-col items-center gap-1">
-              {project.roles.length > 0 ? project.roles.map((role) => (
-                <span key={role} className="font-niagara text-[#f0f0f0] uppercase leading-none text-center"
-                  style={{ fontSize: "clamp(1.8rem, 3.5vw, 3rem)" }}>
-                  {role}
-                </span>
-              )) : (
-                <span className="font-niagara text-[#f0f0f0] uppercase leading-none"
-                  style={{ fontSize: "clamp(1.8rem, 3.5vw, 3rem)" }}>
-                  —
-                </span>
-              )}
-            </div>
-          </div>
-
-        </div>
+    <main className="relative z-[2] min-h-screen bg-[#0a0a0a] pt-[6.5rem] md:pt-28">
+      {/* Title block — technical drawing style */}
+      <section className="px-5 md:px-10 border-t border-hairline">
+        <SpecRow label="Project">
+          <h1 className="font-niagara text-[#f0f0f0] uppercase" style={{ fontSize: "clamp(2.4rem, 5vw, 4rem)", lineHeight: 0.9 }}>
+            {project.title}
+          </h1>
+        </SpecRow>
+        <SpecRow label="Year">
+          <span className="mono-label text-[#f0f0f0]" style={{ fontSize: "0.7rem" }}>{project.year || "—"}</span>
+        </SpecRow>
+        <SpecRow label={project.categoryLabel ?? "Category"}>
+          <span className="mono-label text-[#f0f0f0]" style={{ fontSize: "0.7rem" }}>
+            {project.roles.length > 0 ? project.roles.join(" · ") : "—"}
+          </span>
+        </SpecRow>
+        <SpecRow label="Index">
+          <span className="mono-label text-[#f0f0f0]" style={{ fontSize: "0.7rem" }}>
+            {String(idx + 1).padStart(2, "0")} · {String(projects.length).padStart(2, "0")}
+          </span>
+        </SpecRow>
       </section>
 
       {/* Motion design — synopsis */}
-      {project.tab === "motion" && (
-        <section className="px-6 md:px-16 lg:px-24 py-16 md:py-24 border-b border-white/8">
+      {project.tab === "motion" && project.synopsis && (
+        <section className="px-5 md:px-10 py-14 md:py-20">
           <SectionLabel label="Synopsis" />
-          {project.synopsis
-            ? <SynopsisBody text={project.synopsis} centered={project.synopsisCentered} />
-            : <p className="font-geist text-[#888880] text-center text-sm">Coming soon.</p>
-          }
+          <SynopsisBody text={project.synopsis} centered={project.synopsisCentered} />
         </section>
       )}
 
-      {/* Interactive demo — cover + hero statement */}
+      {/* Interactive — cover + hero statement */}
       {project.tab === "interactive" && project.heroStatement && (
-        <section className="flex flex-col items-center gap-6 pb-4 md:pb-6">
+        <section className="flex flex-col items-center gap-6 pt-10 pb-4 md:pb-6">
           {project.cover && (
             <Image
               src={project.cover}
@@ -256,7 +234,7 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
               priority
             />
           )}
-          <div className="px-6 md:px-16 lg:px-24 w-full flex flex-col items-center gap-10">
+          <div className="px-5 md:px-10 w-full flex flex-col items-center gap-10">
             <p className="font-geist text-[#f0f0f0] text-center leading-snug max-w-3xl"
               style={{ fontSize: "clamp(1.2rem, 2.2vw, 1.75rem)" }}>
               {project.heroStatement}
@@ -265,70 +243,64 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
         </section>
       )}
 
-      {/* Interactive demo — overview (synopsis) */}
+      {/* Interactive — overview */}
       {project.tab === "interactive" && project.synopsis && (
-        <section className="px-6 md:px-16 lg:px-24 pt-4 pb-3 md:pt-6 md:pb-4">
+        <section className="px-5 md:px-10 pt-4 pb-3 md:pt-6 md:pb-4">
           <div className="max-w-3xl mx-auto">
-            <SectionLabel label="Overview" align="left" />
+            <SectionLabel label="Overview" />
             <SynopsisBody text={project.synopsis} />
           </div>
         </section>
       )}
 
-      {/* Interactive demo — video (wider than text column on desktop) */}
+      {/* Interactive — video */}
       {project.tab === "interactive" && project.videos && project.videos.length > 0 && (
-        <section className="px-6 md:px-16 lg:px-24 pb-4 md:pb-6">
-          <div className="mx-auto max-w-3xl md:max-w-[72rem] flex flex-col gap-4">
-            {project.videos.map((v, i) => v.type === "vimeo" && (
-              <div key={i} style={{ padding: `${v.paddingPercent ?? "56.25%"} 0 0 0`, position: "relative" }}>
-                <iframe
-                  src={`https://player.vimeo.com/video/${v.id}?badge=0&autopause=0&player_id=0&app_id=58479&title=0&byline=0&portrait=0&like=0&share=0`}
-                  frameBorder="0"
-                  allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
-                  style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
-                />
-              </div>
+        <section className="px-5 md:px-10 pb-4 md:pb-6">
+          <div className="mx-auto max-w-3xl md:max-w-[72rem] flex flex-col gap-6">
+            {project.videos.map((v, i) => (
+              <VideoBlock key={i} video={v} caption={`VID. ${String(i + 1).padStart(2, "0")}`} />
             ))}
           </div>
         </section>
       )}
 
-      {/* Interactive demo — Request a Demo button */}
+      {/* Interactive — Request a Demo */}
       {project.tab === "interactive" && project.demoUrl && (
-        <section className="px-6 md:px-16 lg:px-24 pt-4 md:pt-6 pb-16 md:pb-24 border-b border-white/8 flex justify-center">
+        <section className="px-5 md:px-10 pt-4 md:pt-6 pb-14 md:pb-20 flex justify-center">
           <div className="w-full max-w-xl">
             <RequestDemoModal subject={`Request Demo of ${project.title}`} />
           </div>
         </section>
       )}
 
-      {/* Interactive demo — feature sections */}
+      {/* Interactive — feature sections */}
       {project.tab === "interactive" && project.featureSections && project.featureSections.length > 0 && (
-        <section className="px-6 md:px-16 lg:px-24 py-16 md:py-24 border-b border-white/8">
+        <section className="px-5 md:px-10 py-14 md:py-20">
           <div className="max-w-3xl mx-auto flex flex-col gap-8">
-            <SectionLabel label="The Experience" align="left" />
+            <SectionLabel label="The Experience" />
             {project.featureSections.map((s, i) => (
-              <FeatureItem key={i} section={s} />
+              <FeatureItem key={i} section={s} index={i} />
             ))}
           </div>
         </section>
       )}
 
-      {/* Interactive demo — technical notes */}
+      {/* Interactive — technical notes */}
       {project.tab === "interactive" && project.technicalNotes && (
-        <section className="px-6 md:px-16 lg:px-24 py-16 md:py-24 border-b border-white/8">
+        <section className="px-5 md:px-10 py-14 md:py-20">
           <div className="max-w-3xl mx-auto">
-            <SectionLabel label="Technical Notes" align="left" />
-            <p className="font-geist text-[#888880] leading-relaxed" style={{ fontSize: "0.8rem" }}>
+            <SectionLabel label="Technical Notes" />
+            <p className="font-geist text-muted leading-relaxed" style={{ fontSize: "0.8rem" }}>
               {project.technicalNotes}
             </p>
           </div>
         </section>
       )}
 
-      {/* Videos — motion design only */}
+      {/* Motion — videos (layout logic unchanged) */}
       {project.tab === "motion" && project.videos && project.videos.length > 0 && (
-        <section className="border-b border-white/8">
+        <section className="px-5 md:px-10 pb-14">
+          <SectionLabel label="Film" />
           {project.videoLayout === "side-by-side" ? (
             <div className="flex flex-col md:flex-row gap-2">
               {project.videos.map((v, i) => (
@@ -347,13 +319,35 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
         </section>
       )}
 
-      {/* Styleframes — only shown when project has them */}
+      {/* Styleframes */}
       {project.styleframes && project.styleframes.length > 0 && (
-        <section className="px-6 md:px-16 lg:px-24 pt-8 pb-16 md:pb-24">
+        <section className="px-5 md:px-10 pt-4 pb-16 md:pb-24">
           {!project.hideStyleframeLabel && <SectionLabel label="Styleframes" />}
           <StyleframesGallery frames={project.styleframes} layout={project.styleframeLayout} />
         </section>
       )}
+
+      {/* Prev / Next */}
+      <div className="grid grid-cols-2 border-t border-hairline">
+        <TransitionLink href={`/work/${prev.slug}`} className="group flex flex-col gap-3 px-5 md:px-10 py-10 md:py-12">
+          <span className="mono-label text-muted group-hover:text-brand transition-colors">← Prev</span>
+          <span
+            className="font-niagara uppercase text-[#f0f0f0] group-hover:text-brand transition-colors"
+            style={{ fontSize: "clamp(1.6rem, 3.5vw, 3rem)", lineHeight: 0.9 }}
+          >
+            {prev.title}
+          </span>
+        </TransitionLink>
+        <TransitionLink href={`/work/${next.slug}`} className="group flex flex-col items-end text-right gap-3 px-5 md:px-10 py-10 md:py-12 border-l border-hairline">
+          <span className="mono-label text-muted group-hover:text-brand transition-colors">Next →</span>
+          <span
+            className="font-niagara uppercase text-[#f0f0f0] group-hover:text-brand transition-colors"
+            style={{ fontSize: "clamp(1.6rem, 3.5vw, 3rem)", lineHeight: 0.9 }}
+          >
+            {next.title}
+          </span>
+        </TransitionLink>
+      </div>
     </main>
   );
 }

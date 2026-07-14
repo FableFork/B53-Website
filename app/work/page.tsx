@@ -1,101 +1,101 @@
 "use client";
 
+// Work — gallery (default) + motion / interactive project index.
+// Boxed filter buttons; index rows backed by cover images.
+
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import TransitionLink from "@/components/TransitionLink";
-import { projects } from "@/data/projects";
+import { projects, gallery } from "@/data/projects";
 
-// ─── Project Card ─────────────────────────────────────────────────────────────
+type ViewId = "gallery" | "motion" | "interactive";
 
-function ProjectCard({ project, index }: { project: (typeof projects)[number]; index: number }) {
-  const [hovered, setHovered] = useState(false);
+const projectBySlug = (slug: string) => projects.find(p => p.slug === slug);
 
+// ─── Gallery ─────────────────────────────────────────────────────────────────
+
+function GalleryView() {
+  return (
+    <div style={{ columns: "3 320px", columnGap: "1rem" }}>
+      {gallery.map((g, i) => {
+        const project = projectBySlug(g.slug);
+        return (
+          <TransitionLink
+            key={`${g.src}-${i}`}
+            href={project ? `/work/${project.slug}` : "/work"}
+            className="block mb-4 group cursor-pointer"
+            style={{ breakInside: "avoid" }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={g.src}
+              alt={project?.title ?? ""}
+              loading="lazy"
+              className="w-full block border border-white/[0.06] grayscale brightness-90 group-hover:grayscale-0 group-hover:brightness-100 transition-[filter] duration-300"
+            />
+            <span className="flex justify-between pt-2">
+              <span className="mono-label text-muted group-hover:text-brand transition-colors">
+                {project?.title ?? g.slug}
+              </span>
+              <span className="mono-label text-muted">IMG {String(i + 1).padStart(2, "0")}</span>
+            </span>
+          </TransitionLink>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── Project index rows ──────────────────────────────────────────────────────
+
+function ProjectRow({ project, index }: { project: (typeof projects)[number]; index: number }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: index * 0.07, ease: [0.4, 0, 0.2, 1] }}
+      initial={{ opacity: 0, clipPath: "inset(100% 0 0 0)" }}
+      animate={{ opacity: 1, clipPath: "inset(0% 0 0 0)" }}
+      transition={{ duration: 0.5, delay: index * 0.07, ease: [0.76, 0, 0.24, 1] }}
     >
-      <TransitionLink href={`/work/${project.slug}`}>
+      <TransitionLink href={`/work/${project.slug}`} className="block mb-4">
         <div
-          className="group relative w-full overflow-hidden rounded-2xl bg-[#111111] border border-white/8 flex items-end px-8 md:px-12 pb-6"
-          style={{ aspectRatio: "16 / 4.2" }}
-          onMouseEnter={() => setHovered(true)}
-          onMouseLeave={() => setHovered(false)}
+          className="group relative overflow-hidden border border-hairline h-32 md:h-[clamp(8rem,17vw,11.5rem)]"
         >
-          {/* Cover image */}
           {project.cover && (
             <Image
               src={project.cover}
               alt={project.title}
               fill
-              sizes="(max-width: 400px) 400px, (max-width: 700px) 700px, (max-width: 900px) 900px, (max-width: 1100px) 1100px, (max-width: 1300px) 1300px, 1800px"
-              className="object-cover object-center transition-transform duration-700 group-hover:scale-[1.03]"
+              sizes="(max-width: 768px) 100vw, 90vw"
+              className="object-cover grayscale brightness-[0.42] group-hover:grayscale-0 group-hover:brightness-[0.6] group-hover:scale-[1.03] transition-all duration-500"
             />
           )}
-
-          {/* Gradient overlay so title reads over image */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-
-          {/* Hover glow */}
-          <span
-            className="absolute inset-0 transition-opacity duration-500 pointer-events-none"
-            style={{
-              background: "radial-gradient(ellipse at 0% 50%, rgba(250,61,0,0.12) 0%, transparent 60%)",
-              opacity: hovered ? 1 : 0,
-            }}
+          {/* Shade for legibility */}
+          <div
+            className="absolute inset-0"
+            style={{ background: "linear-gradient(to right, rgba(10,10,10,0.85) 0%, rgba(10,10,10,0.35) 55%, transparent 100%)" }}
           />
 
-          {/* Sweep line */}
-          <motion.div
-            className="absolute bottom-0 left-0 h-px bg-[#fa3d00]"
-            animate={{ width: hovered ? "100%" : "0%" }}
-            transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
-          />
+          <div className="absolute inset-0 grid grid-cols-[2.5rem_1fr_2rem] md:grid-cols-[5rem_1fr_8rem_10rem_3rem] items-center px-4 md:px-8">
+            <span className="mono-label text-muted group-hover:text-brand transition-colors">
+              0{index + 1}
+            </span>
+            <h2
+              className="font-niagara text-[#f0f0f0] uppercase"
+              style={{ fontSize: "clamp(2rem, 4.5vw, 3.8rem)", lineHeight: 0.9 }}
+            >
+              {project.title}
+            </h2>
+            <span className="mono-label text-muted hidden md:inline">{project.year}</span>
+            <span className="mono-label text-muted hidden md:inline">{project.roles[0] ?? "—"}</span>
+            <span className="mono-label text-muted text-right group-hover:text-brand group-hover:translate-x-1.5 transition-all">
+              →
+            </span>
+          </div>
 
-          <h2
-            className="relative font-niagara text-[#f0f0f0] uppercase leading-none transition-colors duration-300 group-hover:text-[#fa3d00] drop-shadow-lg"
-            style={{ fontSize: "clamp(1.8rem, 4vw, 3.2rem)" }}
-          >
-            {project.title}
-          </h2>
+          {/* Red sweep */}
+          <span className="absolute bottom-0 left-0 h-0.5 bg-brand w-0 group-hover:w-full transition-all duration-[450ms] ease-[cubic-bezier(0.4,0,0.2,1)]" />
         </div>
       </TransitionLink>
-    </motion.div>
-  );
-}
-
-// ─── Tabs ─────────────────────────────────────────────────────────────────────
-
-const TABS = [
-  { id: "motion",      label: "Motion Design" },
-  { id: "interactive", label: "Interactive Demos" },
-] as const;
-
-type TabId = (typeof TABS)[number]["id"];
-
-function TabContent({ tab }: { tab: TabId }) {
-  const filtered = projects.filter(p => p.tab === tab);
-
-  return (
-    <motion.div
-      key={tab}
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -8 }}
-      transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
-      className="mt-12"
-    >
-      {filtered.length > 0 ? (
-        <div className="flex flex-col gap-4">
-          {filtered.map((p, i) => (
-            <ProjectCard key={p.slug} project={p} index={i} />
-          ))}
-        </div>
-      ) : (
-        <p className="font-geist text-[#888880] text-sm">Coming soon.</p>
-      )}
     </motion.div>
   );
 }
@@ -103,61 +103,80 @@ function TabContent({ tab }: { tab: TabId }) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function Work() {
-  const [active, setActive] = useState<TabId>("motion");
+  const [view, setView] = useState<ViewId>("gallery");
+
+  const motionCount      = projects.filter(p => p.tab === "motion").length;
+  const interactiveCount = projects.filter(p => p.tab === "interactive").length;
+  const years            = projects.map(p => parseInt(p.year)).filter(Boolean);
+  const yearRange        = `${Math.min(...years)} — ${Math.max(...years)}`;
+
+  const VIEWS: { id: ViewId; label: string; count: number }[] = [
+    { id: "gallery",     label: "Gallery",     count: gallery.length },
+    { id: "motion",      label: "Motion",      count: motionCount },
+    { id: "interactive", label: "Interactive", count: interactiveCount },
+  ];
 
   return (
-    <main className="min-h-screen bg-[#0a0a0a]">
-      {/* Hero banner */}
-      <div className="relative w-full overflow-hidden" style={{ height: "clamp(14rem, 28vw, 22rem)" }}>
-        <Image
-          src="/Assets/Brand/banner1.jpg"
-          alt=""
-          fill
-          className="object-cover object-center"
-          priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/10 to-[#0a0a0a]" />
-        <div className="absolute inset-0 flex items-end px-6 md:px-16 lg:px-24 pb-6">
-          <h1
-            className="font-niagara text-[#f0f0f0] uppercase leading-none"
-            style={{ fontSize: "clamp(3rem, 8vw, 8rem)", letterSpacing: "-0.01em" }}
-          >
-            Selected Work
-          </h1>
+    <main className="relative z-[2] min-h-screen bg-[#0a0a0a] px-5 md:px-10 pt-[6.5rem] md:pt-32 pb-16">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 border-b border-hairline pb-4">
+        <h1
+          className="font-niagara text-[#f0f0f0] uppercase"
+          style={{ fontSize: "clamp(4rem, 11vw, 11rem)", lineHeight: 0.85 }}
+        >
+          Selected Work
+        </h1>
+        <div className="flex md:flex-col gap-6 md:gap-2 md:text-right pb-2">
+          <span className="mono-label text-muted">{projects.length} PROJECTS</span>
+          <span className="mono-label text-muted">{yearRange}</span>
         </div>
       </div>
 
-      <section className="px-6 md:px-16 lg:px-24 pb-24 pt-12">
-        {/* Tab bar */}
-        <div className="flex flex-wrap items-end border-b border-white/10">
-          {TABS.map(tab => {
-            const isActive = tab.id === active;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActive(tab.id)}
-                className="relative pb-4 pr-8 font-geist uppercase tracking-widest transition-colors"
-                style={{ fontSize: "0.65rem" }}
-              >
-                <span className={isActive ? "text-[#f0f0f0]" : "text-[#888880] hover:text-[#f0f0f0]"}>
-                  {tab.label}
-                </span>
-                {isActive && (
-                  <motion.span
-                    layoutId="tab-underline"
-                    className="absolute bottom-0 left-0 right-8 h-px bg-[#fa3d00]"
-                    transition={{ type: "spring", stiffness: 400, damping: 35 }}
-                  />
-                )}
-              </button>
-            );
-          })}
-        </div>
+      {/* View switcher — boxed buttons */}
+      <div className="flex flex-wrap gap-3 pt-6">
+        {VIEWS.map(v => {
+          const isActive = v.id === view;
+          return (
+            <button
+              key={v.id}
+              onClick={() => setView(v.id)}
+              className={`mono-label px-6 py-3 border transition-colors flex items-center gap-3 ${
+                isActive
+                  ? "bg-brand border-brand text-black"
+                  : "border-hairline text-muted hover:border-white/40 hover:text-[#f0f0f0]"
+              }`}
+            >
+              {v.label}
+              <span className={isActive ? "text-black/60" : "text-muted"}>{v.count}</span>
+            </button>
+          );
+        })}
+      </div>
 
+      {/* Views */}
+      <div className="mt-10">
         <AnimatePresence mode="wait">
-          <TabContent tab={active} />
+          <motion.div
+            key={view}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+          >
+            {view === "gallery" ? (
+              <GalleryView />
+            ) : (
+              <div>
+                {projects
+                  .filter(p => p.tab === view)
+                  .map((p, i) => (
+                    <ProjectRow key={p.slug} project={p} index={i} />
+                  ))}
+              </div>
+            )}
+          </motion.div>
         </AnimatePresence>
-      </section>
+      </div>
     </main>
   );
 }

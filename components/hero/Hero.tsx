@@ -1,224 +1,197 @@
 "use client";
 
+// Typography-first hero.
+// The B53 wordmark is baked to an offscreen canvas (Niagara + red block
+// behind the "5", film grain living inside the glyphs only) and drawn to
+// screen in horizontal slices. Mouse proximity + velocity displace the
+// slices — a scanline glitch localized to the cursor. 2D canvas, no WebGL.
+
 import { useRef, useEffect } from "react";
-import * as THREE from "three";
+import { site } from "@/data/site";
 
-// ─── Shared noise functions ───────────────────────────────────────────────────
-
-const NOISE_FNS = /* glsl */ `
-  float hash(vec2 p) {
-    p = fract(p * vec2(234.34, 435.345));
-    p += dot(p, p + 34.23);
-    return fract(p.x * p.y);
-  }
-  float noise(vec2 p) {
-    vec2 i = floor(p); vec2 f = fract(p);
-    f = f * f * (3.0 - 2.0 * f);
-    return mix(
-      mix(hash(i),               hash(i + vec2(1.,0.)), f.x),
-      mix(hash(i + vec2(0.,1.)), hash(i + vec2(1.,1.)), f.x), f.y
-    );
-  }
-  float fbm(vec2 p) {
-    float v = 0.0; float a = 0.5;
-    mat2 r = mat2(0.8, 0.6, -0.6, 0.8);
-    for (int i = 0; i < 6; i++) { v += a * noise(p); p = r * p * 2.1 + vec2(100.); a *= 0.5; }
-    return v;
-  }
-`;
-
-const vert = /* glsl */ `
-  varying vec2 vUv;
-  void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }
-`;
-
-const bgFrag = /* glsl */ `
-  uniform float uTime;
-  varying vec2  vUv;
-  ${NOISE_FNS}
-  void main() {
-    vec2 uv = vUv;
-    vec2 q = vec2(fbm(uv * 1.2 + uTime * 0.025), fbm(uv * 1.2 + vec2(5.2,1.3) + uTime * 0.025));
-    vec2 r = vec2(fbm(uv * 1.2 + 2.8*q + vec2(1.7,9.2) + uTime * 0.02),
-                  fbm(uv * 1.2 + 2.8*q + vec2(8.3,2.8) + uTime * 0.02));
-    float n = fbm(uv * 1.2 + 2.8 * r);
-    float c = pow(smoothstep(0.40, 0.62, n), 0.85);
-    float frame = floor(uTime * 24.0);
-    float g1 = hash(vUv * 480.0 + frame * 0.1723);
-    float g2 = hash(vUv * 240.0 + frame * 0.3141 + 7.3);
-    c = clamp(c + (g1 * 0.65 + g2 * 0.35 - 0.5) * 0.38, 0.0, 1.0);
-    gl_FragColor = vec4(vec3(c), 1.0);
-  }
-`;
-
-const logoFrag = /* glsl */ `
-  uniform sampler2D uLogo;
-  uniform float     uTime;
-  uniform vec2      uMouse;
-  uniform float     uVelocity;
-  uniform vec2      uLogoOffset;
-  uniform vec2      uLogoSize;
-  varying vec2      vUv;
-  ${NOISE_FNS}
-  void main() {
-    vec2 screenUv = uLogoOffset + vUv * uLogoSize;
-    float d         = length(screenUv - uMouse);
-    float proximity = exp(-d * 6.0);
-    float strength  = proximity * uVelocity * 0.28 + 0.008;
-    vec2 q = vec2(fbm(screenUv * 1.2 + uTime * 0.025),
-                  fbm(screenUv * 1.2 + vec2(5.2,1.3) + uTime * 0.025));
-    vec2 r = vec2(fbm(screenUv * 1.2 + 2.8*q + vec2(1.7,9.2) + uTime * 0.02),
-                  fbm(screenUv * 1.2 + 2.8*q + vec2(8.3,2.8) + uTime * 0.02));
-    vec2 warp = vec2(fbm(screenUv * 1.2 + 2.8*r),
-                     fbm(screenUv * 1.2 + 2.8*r + vec2(3.1, 7.4))) - 0.5;
-    vec2 logoUv    = clamp(vUv + warp * strength, 0.0, 1.0);
-    vec3 logoColor = texture2D(uLogo, logoUv).rgb;
-    float n     = fbm(screenUv * 1.2 + 2.8 * r);
-    float c     = pow(smoothstep(0.40, 0.62, n), 0.85);
-    float frame = floor(uTime * 24.0);
-    float g1    = hash(screenUv * 480.0 + frame * 0.1723);
-    float g2    = hash(screenUv * 240.0 + frame * 0.3141 + 7.3);
-    c = clamp(c + (g1 * 0.65 + g2 * 0.35 - 0.5) * 0.38, 0.0, 1.0);
-    vec3 bgColor = vec3(c);
-    gl_FragColor = vec4(abs(logoColor - bgColor), 1.0);
-  }
-`;
-
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-const LOGO_CSS_W = 428;
-const LOGO_CSS_H = 198;
-
-// Wall-clock time — unaffected by rAF throttling or R3F lifecycle
-const HERO_START = typeof performance !== "undefined" ? performance.now() : 0;
-const heroTime = () => (performance.now() - HERO_START) / 1000;
-
-// ─── Hero ─────────────────────────────────────────────────────────────────────
+const NAV_H = 64;
+const MARQUEE_H = 42;
 
 export default function Hero() {
-  const canvasRef   = useRef<HTMLCanvasElement>(null);
-  const mouseRef    = useRef({ x: 0.5, y: 0.5 });
-  const velocityRef = useRef(0);
-  const lastRef     = useRef({ x: 0.5, y: 0.5 });
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Raw Three.js scene — no R3F, so the render loop is entirely ours and
-  // never paused by R3F's focus/visibility lifecycle management.
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    const cv = canvasRef.current;
+    if (!cv) return;
+    const ctx = cv.getContext("2d")!;
+    const off = document.createElement("canvas");
+    const octx = off.getContext("2d")!;
 
-    // Orthographic camera: world space [-1, 1] × [-1, 1]
-    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 2);
-    camera.position.z = 1;
+    const mouse = { x: -9999, y: -9999 };
+    let vel = 0;
+    let last = { x: 0, y: 0 };
+    let raf = 0;
+    let frame = 0;
 
-    const scene    = new THREE.Scene();
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: false });
-    renderer.setPixelRatio(1);
-
-    // Background plane fills the full viewport
-    const bgMat  = new THREE.ShaderMaterial({
-      vertexShader: vert, fragmentShader: bgFrag,
-      uniforms: { uTime: { value: 0 } },
-    });
-    scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), bgMat));
-
-    // Logo material + mesh (added once texture loads)
-    const logoMat = new THREE.ShaderMaterial({
-      vertexShader: vert, fragmentShader: logoFrag,
-      uniforms: {
-        uLogo:       { value: null },
-        uTime:       { value: 0 },
-        uMouse:      { value: new THREE.Vector2(0.5, 0.5) },
-        uVelocity:   { value: 0 },
-        uLogoOffset: { value: new THREE.Vector2() },
-        uLogoSize:   { value: new THREE.Vector2() },
-      },
-    });
-    let logoMesh: THREE.Mesh | null = null;
-
-    const S = 2, W = LOGO_CSS_W * S, H = LOGO_CSS_H * S;
-    const logoCanvas = document.createElement("canvas");
-    logoCanvas.width = W; logoCanvas.height = H;
-    const ctx = logoCanvas.getContext("2d")!;
-    ctx.fillStyle = "#fa3d00";
-    ctx.fillRect(0, 0, W, H);
-    const img = new Image();
-    img.onload = () => {
-      ctx.drawImage(img, 44*S, 28*S, W - 44*S*2, H - 28*S*2);
-      const tex = new THREE.CanvasTexture(logoCanvas);
-      tex.needsUpdate = true;
-      logoMat.uniforms.uLogo.value = tex;
-      logoMesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), logoMat);
-      logoMesh.position.z = 0.01;
-      scene.add(logoMesh);
+    const fontFamily = () => {
+      const fam = getComputedStyle(document.body).getPropertyValue("--font-niagara").trim();
+      return fam || '"Arial Narrow"';
     };
-    img.src = "/Assets/Brand/B53_HorizontalLogo.svg";
 
-    // Update renderer size + logo scale/uniforms
-    const syncSize = () => {
-      const w = canvas.clientWidth;
-      const h = canvas.clientHeight;
-      renderer.setSize(w, h, false);
-      if (logoMesh) {
-        const swUv = LOGO_CSS_W / w;
-        const shUv = LOGO_CSS_H / h;
-        logoMesh.scale.set(swUv * 2, shUv * 2, 1);
-        logoMat.uniforms.uLogoOffset.value.set(0.5 - swUv * 0.5, 0.5 - shUv * 0.5);
-        logoMat.uniforms.uLogoSize.value.set(swUv, shUv);
+    // Grain drawn source-atop → lives inside the glyph/block ink only
+    const grain = () => {
+      octx.globalCompositeOperation = "source-atop";
+      for (let i = 0; i < 900; i++) {
+        const x = Math.random() * off.width;
+        const y = Math.random() * off.height;
+        const a = Math.random() * 0.14;
+        octx.fillStyle = Math.random() > 0.5 ? `rgba(0,0,0,${a})` : `rgba(255,255,255,${a})`;
+        octx.fillRect(x, y, 2, 2);
       }
+      octx.globalCompositeOperation = "source-over";
     };
 
-    syncSize();
-    const ro = new ResizeObserver(syncSize);
-    ro.observe(canvas);
+    const bake = () => {
+      const w = cv.clientWidth, h = cv.clientHeight;
+      if (!w || !h) return;
+      cv.width = off.width = w;
+      cv.height = off.height = h;
 
-    // Render loop — we own this entirely, no R3F involved
-    let rafId: number;
-    const tick = () => {
-      const t = heroTime();
-      bgMat.uniforms.uTime.value = t;
+      octx.fillStyle = "#0a0a0a";
+      octx.fillRect(0, 0, w, h);
 
-      if (logoMesh) {
-        syncSize();
-        logoMat.uniforms.uTime.value     = t;
-        logoMat.uniforms.uMouse.value.set(mouseRef.current.x, mouseRef.current.y);
-        logoMat.uniforms.uVelocity.value = velocityRef.current;
+      const text = site.hero.wordmark;
+      const availH = h - NAV_H - MARQUEE_H;
+
+      // size by width, cap ink height at 72% of available space
+      let fs = w * 0.42;
+      octx.font = `${fs}px ${fontFamily()}`;
+      let m = octx.measureText(text);
+      let inkH = m.actualBoundingBoxAscent + m.actualBoundingBoxDescent;
+      if (inkH > availH * 0.72) {
+        fs *= (availH * 0.72) / inkH;
+        octx.font = `${fs}px ${fontFamily()}`;
+        m = octx.measureText(text);
+        inkH = m.actualBoundingBoxAscent + m.actualBoundingBoxDescent;
       }
 
-      renderer.render(scene, camera);
-      rafId = requestAnimationFrame(tick);
+      // optical centering on actual ink bounds
+      const inkW = m.actualBoundingBoxLeft + m.actualBoundingBoxRight;
+      const x = (w - inkW) / 2 + m.actualBoundingBoxLeft;
+      const y = NAV_H + (availH - inkH) / 2 + m.actualBoundingBoxAscent;
+
+      // red block behind the middle glyph (the "5" in B53)
+      if (text.length >= 2) {
+        const head = text.slice(0, 1);
+        const mid  = text.slice(1, 2);
+        const wHead = octx.measureText(head).width;
+        const wHeadMid = octx.measureText(head + mid).width;
+        const mMid = octx.measureText(mid);
+        octx.fillStyle = "#fa3d00";
+        octx.fillRect(
+          x + wHead,
+          y - mMid.actualBoundingBoxAscent,
+          wHeadMid - wHead,
+          mMid.actualBoundingBoxAscent + mMid.actualBoundingBoxDescent
+        );
+      }
+
+      octx.fillStyle = "#f0f0f0";
+      octx.fillText(text, x, y);
+      grain();
     };
-    tick();
+
+    const draw = () => {
+      frame++;
+      if (frame % 3 === 0) bake(); // ~20fps grain refresh
+      ctx.fillStyle = "#0a0a0a";
+      ctx.fillRect(0, 0, cv.width, cv.height);
+      const slice = 6;
+      const strength = vel * 90;
+      for (let y = 0; y < cv.height; y += slice) {
+        const dy = Math.abs(y + slice / 2 - mouse.y) / cv.height;
+        const prox = Math.exp(-dy * 14);
+        const offset = (Math.random() - 0.5) * strength * prox;
+        ctx.drawImage(off, 0, y, cv.width, slice, offset, y, cv.width, slice);
+      }
+      vel *= 0.94;
+      raf = requestAnimationFrame(draw);
+    };
+
+    const onMove = (e: MouseEvent) => {
+      const r = cv.getBoundingClientRect();
+      const x = e.clientX - r.left, y = e.clientY - r.top;
+      vel = Math.min(vel + Math.hypot(x - last.x, y - last.y) / 60, 1.4);
+      last = { x, y };
+      mouse.x = x; mouse.y = y;
+    };
+
+    const ro = new ResizeObserver(bake);
+    ro.observe(cv);
+    window.addEventListener("mousemove", onMove);
+
+    const start = () => { bake(); draw(); };
+    if (document.fonts?.ready) document.fonts.ready.then(start);
+    else setTimeout(start, 400);
 
     return () => {
-      cancelAnimationFrame(rafId);
+      cancelAnimationFrame(raf);
       ro.disconnect();
-      bgMat.dispose();
-      logoMat.dispose();
-      renderer.dispose();
+      window.removeEventListener("mousemove", onMove);
     };
   }, []);
 
-  // Mouse tracking + velocity decay
-  useEffect(() => {
-    let raf: number;
-    const onMove = (e: MouseEvent) => {
-      const x = e.clientX / window.innerWidth;
-      const y = 1 - e.clientY / window.innerHeight;
-      const speed = Math.hypot(x - lastRef.current.x, y - lastRef.current.y);
-      velocityRef.current = velocityRef.current * 0.7 + Math.min(speed * 50, 1.0) * 0.3;
-      lastRef.current  = { x, y };
-      mouseRef.current = { x, y };
-    };
-    const decay = () => { velocityRef.current *= 0.96; raf = requestAnimationFrame(decay); };
-    decay();
-    window.addEventListener("mousemove", onMove);
-    return () => { window.removeEventListener("mousemove", onMove); cancelAnimationFrame(raf); };
-  }, []);
+  const marqueeText = site.hero.marquee.join(" × ") + " × ";
 
   return (
     <section className="relative w-screen h-screen overflow-hidden bg-[#0a0a0a]">
-      <canvas ref={canvasRef} style={{ width: "100%", height: "100%" }} />
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+
+      {/* HUD frame */}
+      <div className="absolute inset-0 pointer-events-none z-[2]">
+        <span className="absolute top-20 left-5 md:left-10 font-mono text-white/25 text-base select-none">+</span>
+        <span className="absolute top-20 right-5 md:right-10 font-mono text-white/25 text-base select-none">+</span>
+        <span className="absolute bottom-[4.5rem] left-5 md:left-10 font-mono text-white/25 text-base select-none">+</span>
+        <span className="absolute bottom-[4.5rem] right-5 md:right-10 font-mono text-white/25 text-base select-none">+</span>
+
+        <div className="absolute top-[5.2rem] left-0 right-0 text-center">
+          <span className="mono-label text-white/30">{site.hero.hudTop}</span>
+        </div>
+
+        <div
+          className="absolute left-[2.7rem] top-1/2 hidden md:block"
+          style={{ transform: "rotate(180deg) translateY(50%)", writingMode: "vertical-rl" }}
+        >
+          <span className="mono-label text-white/30">{site.hero.hudLeft}</span>
+        </div>
+
+        <div className="absolute bottom-[4.5rem] right-5 md:right-[4.5rem] flex items-center gap-2.5">
+          <span className="mono-label text-white/35">SCROLL</span>
+          <span className="flex flex-col gap-[3px]">
+            {[0, 1, 2].map(i => (
+              <i
+                key={i}
+                className="block w-2.5 h-px bg-white/30"
+                style={{ animation: `b53-tickpulse 1.6s ${i * 0.2}s infinite` }}
+              />
+            ))}
+          </span>
+        </div>
+      </div>
+
+      {/* Marquee */}
+      <div className="absolute bottom-0 left-0 right-0 z-[3] h-[42px] border-t border-hairline bg-[#0a0a0a] overflow-hidden flex items-center group">
+        <div
+          className="flex whitespace-nowrap group-hover:[animation-play-state:paused]"
+          style={{ animation: "b53-marquee 28s linear infinite" }}
+        >
+          <span className="mono-label text-white/30 pr-12">{marqueeText.repeat(4)}</span>
+          <span className="mono-label text-white/30 pr-12">{marqueeText.repeat(4)}</span>
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes b53-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        @keyframes b53-tickpulse { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
+        @media (prefers-reduced-motion: reduce) {
+          [style*="b53-marquee"], [style*="b53-tickpulse"] { animation: none !important; }
+        }
+      `}</style>
     </section>
   );
 }

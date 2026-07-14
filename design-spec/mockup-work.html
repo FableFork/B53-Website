@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B53 — Work Mockup v2 (Gallery + Project Index)</title>
+<style>
+  @font-face { font-family: "Niagara"; src: url("../app/fonts/NiagaraSolid.ttf"); }
+  @font-face { font-family: "Geist"; src: url("../app/fonts/GeistVF.woff"); }
+  @font-face { font-family: "GeistMono"; src: url("../app/fonts/GeistMonoVF.woff"); }
+  :root { --bg:#0a0a0a; --fg:#f0f0f0; --muted:#888880; --red:#fa3d00; --hairline:rgba(255,255,255,0.12); }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { background:var(--bg); color:var(--fg); font-family:"Geist",sans-serif; }
+  .mono { font-family:"GeistMono",monospace; font-size:0.6rem; letter-spacing:0.18em; text-transform:uppercase; }
+  .muted { color:var(--muted); }
+
+  .grid-guides { position:fixed; inset:0; pointer-events:none; z-index:1; display:grid; grid-template-columns:repeat(12,1fr); padding:0 2.5rem; }
+  .grid-guides span { border-left:1px solid rgba(255,255,255,0.04); }
+
+  nav { position:fixed; top:0; left:0; right:0; z-index:50; height:4rem; display:flex; align-items:center; justify-content:space-between; padding:0 2.5rem; border-bottom:1px solid var(--hairline); background:rgba(10,10,10,0.8); backdrop-filter:blur(8px); }
+  nav img { height:30px; width:auto; display:block; } /* logo is 503×630 — never force square */
+  .burger { display:flex; align-items:center; gap:0.8rem; cursor:pointer; }
+  .burger .lines { display:flex; flex-direction:column; gap:5px; }
+  .burger .lines span { display:block; width:24px; height:1px; background:var(--fg); }
+
+  main { position:relative; z-index:2; padding:8rem 2.5rem 4rem; }
+
+  /* Header */
+  .head { display:flex; align-items:flex-end; justify-content:space-between; border-bottom:1px solid var(--hairline); padding-bottom:1rem; }
+  .head h1 { font-family:"Niagara"; text-transform:uppercase; font-size:clamp(4rem,11vw,11rem); line-height:0.85; font-weight:400; }
+  .head .meta { text-align:right; color:var(--muted); display:flex; flex-direction:column; gap:0.5rem; padding-bottom:0.8rem; }
+
+  /* Filters — boxed toggle buttons */
+  .filters { display:flex; gap:0.8rem; padding:1.4rem 0 0; flex-wrap:wrap; }
+  .filters button {
+    background:none; border:1px solid var(--hairline); cursor:pointer;
+    font-family:"GeistMono",monospace; font-size:0.62rem; letter-spacing:0.18em; text-transform:uppercase;
+    color:var(--muted); padding:0.75rem 1.5rem; display:flex; align-items:center; gap:0.7rem;
+  }
+  .filters button .n { color:var(--muted); }
+  .filters button:hover { border-color:rgba(255,255,255,0.4); color:var(--fg); }
+  .filters button.active { background:var(--red); border-color:var(--red); color:#000; }
+  .filters button.active .n { color:rgba(0,0,0,0.6); }
+
+  .view { margin-top:2.5rem; }
+
+  /* ── Gallery (masonry) ── */
+  .gallery { columns:3 320px; column-gap:1rem; }
+  .gitem { break-inside:avoid; margin-bottom:1rem; cursor:pointer; position:relative; }
+  .gitem img { width:100%; display:block; filter:grayscale(1) brightness(0.9); transition:filter 0.25s; border:1px solid rgba(255,255,255,0.06); }
+  .gitem:hover img { filter:none; }
+  .gitem .gcap { display:flex; justify-content:space-between; padding:0.45rem 0.1rem 0; color:var(--muted); }
+  .gitem:hover .gcap .gp { color:var(--red); }
+
+  /* ── Project index rows — image-backed ── */
+  .prow { position:relative; display:block; text-decoration:none; color:var(--fg); overflow:hidden; border:1px solid var(--hairline); margin-bottom:1rem; height:clamp(8rem,17vw,11.5rem); }
+  .prow img.bg { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:grayscale(1) brightness(0.42); transition:filter 0.35s, transform 0.7s cubic-bezier(0.4,0,0.2,1); }
+  .prow:hover img.bg { filter:grayscale(0) brightness(0.6); transform:scale(1.03); }
+  .prow .shade { position:absolute; inset:0; background:linear-gradient(to right, rgba(10,10,10,0.85) 0%, rgba(10,10,10,0.35) 55%, transparent 100%); }
+  .prow .content { position:absolute; inset:0; display:grid; grid-template-columns:5rem 1fr 8rem 10rem 3rem; align-items:center; padding:0 2rem; }
+  .prow .idx { font-family:"GeistMono",monospace; font-size:0.6rem; letter-spacing:0.18em; color:var(--muted); }
+  .prow .title { font-family:"Niagara"; text-transform:uppercase; font-size:clamp(2.2rem,4.5vw,3.8rem); line-height:0.9; }
+  .prow .yr, .prow .cat { font-family:"GeistMono",monospace; font-size:0.6rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--muted); }
+  .prow .arrow { font-family:"GeistMono",monospace; color:var(--muted); text-align:right; transition:transform 0.15s; }
+  .prow:hover .idx { color:var(--red); }
+  .prow:hover .arrow { transform:translateX(6px); color:var(--red); }
+  .prow .sweep { position:absolute; bottom:0; left:0; height:2px; width:0; background:var(--red); transition:width 0.45s cubic-bezier(0.4,0,0.2,1); }
+  .prow:hover .sweep { width:100%; }
+
+  footer { position:relative; z-index:2; border-top:1px solid var(--hairline); display:flex; align-items:center; justify-content:space-between; padding:1rem 2.5rem; color:var(--muted); flex-wrap:wrap; gap:0.8rem; }
+  footer .grp { display:flex; align-items:center; gap:2.5rem; }
+  footer img { height:24px; width:auto; display:block; }
+  .dot { display:inline-block; width:6px; height:6px; background:var(--red); margin-right:0.5rem; }
+
+  @media (max-width:860px) {
+    .grid-guides { display:none; }
+    nav { padding:0 1.25rem; }
+    main { padding:6.5rem 1.25rem 3rem; }
+    .head { flex-direction:column; align-items:flex-start; gap:1rem; }
+    .head .meta { text-align:left; flex-direction:row; gap:1.5rem; }
+    .gallery { columns:2 140px; }
+    .prow { height:8rem; }
+    .prow .content { grid-template-columns:2.5rem 1fr 2rem; padding:0 1.1rem; }
+    .prow .yr, .prow .cat { display:none; }
+    footer { padding:1rem 1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="grid-guides"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
+<nav>
+  <img src="../public/Assets/Brand/B53_Logo.png" alt="B53">
+  <span class="mono muted">/WORK</span>
+  <div class="burger"><span class="mono">Menu</span><div class="lines"><span></span><span></span><span></span></div></div>
+</nav>
+
+<main>
+  <div class="head">
+    <h1>Selected Work</h1>
+    <div class="meta mono"><span>9 PROJECTS</span><span>2018 — 2026</span></div>
+  </div>
+
+  <div class="filters">
+    <button class="active" data-tab="gallery">Gallery <span class="n" id="nGal"></span></button>
+    <button data-tab="motion">Motion <span class="n">8</span></button>
+    <button data-tab="interactive">Interactive <span class="n">1</span></button>
+  </div>
+
+  <div class="view" id="view"></div>
+</main>
+
+<footer class="mono">
+  <div class="grp"><img src="../public/Assets/Brand/B53_Logo.png" alt="B53"><span>B53 — STUDIO</span></div>
+  <div class="grp"><span><span class="dot"></span>STATUS: AVAILABLE</span><span>VER 2.0</span></div>
+</footer>
+
+<script>
+const PROJECTS = [
+  { t:"Lean — Leap 2025",  y:"2025", c:"Client",   img:"../public/ProjectThumbnails/Lean1.png",  tab:"motion" },
+  { t:"E& — Gitex 2024",   y:"2024", c:"Client",   img:"../public/ProjectThumbnails/eand2.png",  tab:"motion" },
+  { t:"Lueur",             y:"2023", c:"Personal", img:"../public/ProjectThumbnails/leur1.png",  tab:"motion" },
+  { t:"Dubai AI Festival", y:"2025", c:"Client",   img:"../public/ProjectThumbnails/daif1.png",  tab:"motion" },
+  { t:"Sony",              y:"2021", c:"Personal", img:"../public/ProjectThumbnails/sony1.png",  tab:"motion" },
+  { t:"Beyond",            y:"2019", c:"Personal", img:"../public/ProjectThumbnails/bey1.png",   tab:"motion" },
+  { t:"Dreams",            y:"2019", c:"Personal", img:"../public/ProjectThumbnails/dream1.png", tab:"motion" },
+  { t:"Urban",             y:"2018", c:"Personal", img:"../public/ProjectThumbnails/urban1.png", tab:"motion" },
+  { t:"B53-Auto",          y:"2026", c:"Demo",     img:"../public/ProjectThumbnails/auto1.png",  tab:"interactive" },
+];
+
+/* Curated gallery — max 2 clearly distinct images per project */
+const GALLERY = [
+  { p:"Dubai AI Festival", src:"../public/Projects/dubai-ai-festival/05587f233410695.68af069b96d03.png" },
+  { p:"Lueur",             src:"../public/Projects/lueur/36c644176748525.64ca476cb264e.png" },
+  { p:"Dreams",            src:"../public/Projects/dreams/72c109121631423.60c9d32aede7d.jpg" },
+  { p:"Urban",             src:"../public/Projects/urban/0de262128371097.6154b005cd521.jpg" },
+  { p:"Sony",              src:"../public/Projects/sony/55c08c187573843.658be9ae80582.png" },
+  { p:"Beyond",            src:"../public/Projects/beyond/494e24119752225.60a42743aab82.jpg" },
+  { p:"Lean — Leap 2025",  src:"../public/Projects/lean-leap-2025/8da9b6219091735.67ac4ecd791a1.png" },
+  { p:"Dubai AI Festival", src:"../public/Projects/dubai-ai-festival/37009f233410695.68af069b97767.png" },
+  { p:"Lueur",             src:"../public/Projects/lueur/9aa299176748525.64ca476cb7475.png" },
+  { p:"Dreams",            src:"../public/Projects/dreams/991e31121631423.60c9d32af02c8.jpg" },
+  { p:"Urban",             src:"../public/Projects/urban/c8c726128371097.6154b005ce010.png" },
+  { p:"Sony",              src:"../public/Projects/sony/640b85187573843.658be9ae7f7fa.png" },
+  { p:"Beyond",            src:"../public/Projects/beyond/6a70ab119752225.60a42743abaee.png" },
+  { p:"Lean — Leap 2025",  src:"../public/Projects/lean-leap-2025/1c88c1219091735.67ac5432ec032.png" },
+];
+document.getElementById("nGal").textContent = GALLERY.length;
+
+const view = document.getElementById("view");
+
+function renderGallery(){
+  const wrap = document.createElement("div");
+  wrap.className = "gallery";
+  GALLERY.forEach((g, i) => {
+    const item = document.createElement("div");
+    item.className = "gitem";
+    item.innerHTML = `
+      <img src="${g.src}" alt="" loading="lazy">
+      <div class="gcap mono"><span class="gp">${g.p}</span><span>IMG ${String(i+1).padStart(2,"0")}</span></div>`;
+    wrap.appendChild(item);
+  });
+  view.replaceChildren(wrap);
+}
+
+function renderRows(tab){
+  const wrap = document.createElement("div");
+  PROJECTS.filter(p => p.tab === tab).forEach((p, i) => {
+    const a = document.createElement("a");
+    a.className = "prow"; a.href = "#";
+    a.innerHTML = `
+      <img class="bg" src="${p.img}" alt="" loading="lazy">
+      <div class="shade"></div>
+      <div class="content">
+        <span class="idx">0${i+1}</span>
+        <span class="title">${p.t}</span>
+        <span class="yr">${p.y}</span>
+        <span class="cat">${p.c}</span>
+        <span class="arrow">→</span>
+      </div>
+      <div class="sweep"></div>`;
+    wrap.appendChild(a);
+  });
+  view.replaceChildren(wrap);
+}
+
+document.querySelectorAll(".filters button").forEach(b => {
+  b.onclick = () => {
+    document.querySelectorAll(".filters button").forEach(x => x.classList.remove("active"));
+    b.classList.add("active");
+    b.dataset.tab === "gallery" ? renderGallery() : renderRows(b.dataset.tab);
+  };
+});
+renderGallery();
+</script>
+</body>
+</html>
