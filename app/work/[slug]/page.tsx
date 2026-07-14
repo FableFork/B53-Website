@@ -114,7 +114,7 @@ function StyleframesGallery({ frames, layout = "auto" }: { frames: StyleframeEnt
 
 function SynopsisBody({ text, centered }: { text: string; centered?: boolean }) {
   return (
-    <div className={`max-w-3xl flex flex-col gap-6 ${centered ? "mx-auto items-center text-center" : ""}`}>
+    <div className={`max-w-3xl mx-auto flex flex-col gap-6 ${centered ? "items-center text-center" : ""}`}>
       {text.split("\n\n").map((block, i) => {
         const lines = block.split("\n");
         const hasBullets = lines.some(l => l.startsWith("- "));
@@ -246,10 +246,8 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
       {/* Interactive — overview */}
       {project.tab === "interactive" && project.synopsis && (
         <section className="px-5 md:px-10 pt-4 pb-3 md:pt-6 md:pb-4">
-          <div className="max-w-3xl mx-auto">
-            <SectionLabel label="Overview" />
-            <SynopsisBody text={project.synopsis} />
-          </div>
+          <SectionLabel label="Overview" />
+          <SynopsisBody text={project.synopsis} />
         </section>
       )}
 
@@ -276,8 +274,8 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
       {/* Interactive — feature sections */}
       {project.tab === "interactive" && project.featureSections && project.featureSections.length > 0 && (
         <section className="px-5 md:px-10 py-14 md:py-20">
+          <SectionLabel label="The Experience" />
           <div className="max-w-3xl mx-auto flex flex-col gap-8">
-            <SectionLabel label="The Experience" />
             {project.featureSections.map((s, i) => (
               <FeatureItem key={i} section={s} index={i} />
             ))}
@@ -288,12 +286,10 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
       {/* Interactive — technical notes */}
       {project.tab === "interactive" && project.technicalNotes && (
         <section className="px-5 md:px-10 py-14 md:py-20">
-          <div className="max-w-3xl mx-auto">
-            <SectionLabel label="Technical Notes" />
-            <p className="font-geist text-muted leading-relaxed" style={{ fontSize: "0.8rem" }}>
-              {project.technicalNotes}
-            </p>
-          </div>
+          <SectionLabel label="Technical Notes" />
+          <p className="font-geist text-muted leading-relaxed max-w-3xl mx-auto" style={{ fontSize: "0.8rem" }}>
+            {project.technicalNotes}
+          </p>
         </section>
       )}
 
